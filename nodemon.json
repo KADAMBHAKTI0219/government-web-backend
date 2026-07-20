@@ -1,0 +1,12 @@
+{
+  "watch": ["src"],
+  "ext": "js,json",
+  "ignore": [
+    "uploads/*",
+    "node_modules/*",
+    "*.log",
+    "admin_seed.json",
+    "postman_collection.json",
+    ".git/*"
+  ]
+}

@@ -1,0 +1,19 @@
+[
+  {
+    "_id": {
+      "$oid": "669be2e8f1a2b3c4d5e6f7a8"
+    },
+    "name": "System Administrator",
+    "email": "admin@gmail.com",
+    "password": "$2b$10$cznOXLJP3fMJWhOF/Q8EVuzbJgkFqjffh49l3IOudboxphghi76O2",
+    "role": "SUPER_ADMIN",
+    "active": true,
+    "createdAt": {
+      "$date": "2026-07-20T10:00:00.000Z"
+    },
+    "updatedAt": {
+      "$date": "2026-07-20T10:00:00.000Z"
+    },
+    "__v": 0
+  }
+]
