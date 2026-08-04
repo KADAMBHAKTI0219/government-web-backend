@@ -1,23 +1,10 @@
-const express = require('express');
+import express from 'express';
+import { registerParticipant, getParticipants } from '../controllers/participantController.js';
+import { protectAdmin } from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const {
-  createParticipant,
-  getParticipants,
-  getParticipantProfile,
-  getParticipantById,
-  updateParticipantStatus,
-  deleteParticipant
-} = require('../controllers/participantController');
-const { protectAdmin } = require('../middleware/authMiddleware');
 
-// Public routes
-router.post('/', createParticipant);
-router.get('/profile', getParticipantProfile);
-
-// Admin protected routes
+router.post('/register', registerParticipant);
 router.get('/', protectAdmin, getParticipants);
-router.get('/:id', protectAdmin, getParticipantById);
-router.put('/:id/status', protectAdmin, updateParticipantStatus);
-router.delete('/:id', protectAdmin, deleteParticipant);
 
-module.exports = router;
+export default router;

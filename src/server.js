@@ -1,77 +1,42 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
+import dotenv from 'dotenv';
+import app from './app.js';
+import connectDB from './config/db.js';
+import logger from './utils/logger.js';
+import { seedDatabase } from './seeders/seedAdminAndRoles.js';
 
-const connectDB = require('./config/db');
-const errorHandler = require('./middleware/errorHandler');
-
-// Import Route Handlers
-const authRoutes = require('./routes/authRoutes');
-const otpRoutes = require('./routes/otpRoutes');
-const categoryRoutes = require('./routes/categoryRoutes');
-const participantRoutes = require('./routes/participantRoutes');
-const dashboardRoutes = require('./routes/dashboardRoutes');
-
-const app = express();
-
-// Connect to MongoDB
-connectDB();
-
-// Middleware
-app.use(
-  cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'Accept',
-      'Origin'
-    ],
-    credentials: true
-  })
-);
-app.options('*', cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Static directory for uploaded category images
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
-// Root & Health Check Endpoint
-app.get('/', (req, res) => {
-  res.json({
-    status: 'online',
-    service: 'Government Creator Awards Portal - API Backend',
-    version: '1.0.0',
-    timestamp: new Date().toISOString()
-  });
-});
-
-// API Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/otp', otpRoutes);
-app.use('/api/categories', categoryRoutes);
-app.use('/api/participants', participantRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-
-// Global Error Handler
-app.use(errorHandler);
+dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  console.log(`===================================================`);
-  console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  console.log(`API Base URL: http://localhost:${PORT}/api`);
-  console.log(`===================================================`);
-});
+// Connect to MongoDB Atlas and Start Server
+const startServer = async () => {
+  try {
+    await connectDB();
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-  console.error(`Unhandled Rejection Error: ${err.message}`);
-});
+    // Run auto-seeder to guarantee initial Roles & Super Admin account exist
+    await seedDatabase();
 
-module.exports = app;
+    const server = app.listen(PORT, () => {
+      logger.info(`===================================================`);
+      logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+      logger.info(`API Base URL: http://localhost:${PORT}/api/v1`);
+      logger.info(`Swagger Documentation: http://localhost:${PORT}/api/docs`);
+      logger.info(`===================================================`);
+    });
+
+    // Unhandled Rejection & Exception Handlers
+    process.on('unhandledRejection', (err) => {
+      logger.error(`Unhandled Promise Rejection: ${err.stack || err.message}`);
+    });
+
+    process.on('uncaughtException', (err) => {
+      logger.error(`Uncaught Exception: ${err.stack || err.message}`);
+      process.exit(1);
+    });
+  } catch (error) {
+    logger.error(`Failed to start server: ${error.message}`);
+    process.exit(1);
+  }
+};
+
+startServer();

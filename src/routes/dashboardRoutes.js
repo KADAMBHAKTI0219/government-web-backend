@@ -1,8 +1,14 @@
-const express = require('express');
+import express from 'express';
+import * as DashboardController from '../controllers/DashboardController.js';
+import { authenticate } from '../middleware/auth.js';
+import { authorize } from '../middleware/rbac.js';
+import { ROLES } from '../constants/roles.js';
+
 const router = express.Router();
-const { getDashboardStats } = require('../controllers/dashboardController');
-const { protectAdmin } = require('../middleware/authMiddleware');
 
-router.get('/stats', protectAdmin, getDashboardStats);
+router.use(authenticate);
 
-module.exports = router;
+router.get('/admin', authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MODERATOR), DashboardController.getAdminDashboard);
+router.get('/jury', authorize(ROLES.JURY, ROLES.SUPER_ADMIN, ROLES.ADMIN), DashboardController.getJuryDashboard);
+
+export default router;

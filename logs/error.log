@@ -1,0 +1,10 @@
+[2026-08-04 11:07:42:742] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 11:07:52:752] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 11:10:39:1039] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 11:26:07:267] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 11:28:29:2829] [ERROR]: Database seeding failed: next is not a function
+[2026-08-04 11:32:35:3235] [ERROR]: Failed to send email to creator@gmail.com: Missing credentials for "PLAIN"
+[2026-08-04 11:33:13:3313] [ERROR]: Failed to send email to kadambhakti0219@gmail.com: Missing credentials for "PLAIN"
+[2026-08-04 11:40:12:4012] [ERROR]: [POST /api/v1/auth/login] Error: Invalid email or password
+    at AuthService.login (file:///C:/Users/HP/Desktop/Nex%20Alliance%20Project/government-web-backend/src/services/AuthService.js:51:13)
+    at async file:///C:/Users/HP/Desktop/Nex%20Alliance%20Project/government-web-backend/src/controllers/AuthController.js:14:18

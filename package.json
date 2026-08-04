@@ -16,7 +16,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/KADAMBHAKTI0219/government-web-backend/issues"
   },
@@ -25,14 +25,28 @@
     "axios": "^1.18.1",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^1.41.3",
+    "compression": "^1.8.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
+    "exceljs": "^4.4.0",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.6.1",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.3.0",
+    "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.7.4",
+    "morgan": "^1.11.0",
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
-    "slugify": "^1.6.9"
+    "nodemailer": "^9.0.3",
+    "pdfkit": "^0.19.1",
+    "qrcode": "^1.5.4",
+    "slugify": "^1.6.9",
+    "swagger-ui-express": "^5.0.1",
+    "uuid": "^14.0.1",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

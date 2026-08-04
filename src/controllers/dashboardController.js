@@ -1,46 +1,13 @@
-const Participant = require('../models/Participant');
-const Category = require('../models/Category');
+import DashboardService from '../services/DashboardService.js';
+import { ApiResponse } from '../utils/apiResponse.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
-// @desc    Get Admin Dashboard Stats
-// @route   GET /api/dashboard/stats
-// @access  Admin
-const getDashboardStats = async (req, res, next) => {
-  try {
-    const [
-      totalParticipants,
-      pendingParticipants,
-      submittedParticipants,
-      approvedParticipants,
-      rejectedParticipants,
-      totalCategories,
-      activeCategories
-    ] = await Promise.all([
-      Participant.countDocuments(),
-      Participant.countDocuments({ status: 'PENDING' }),
-      Participant.countDocuments({ status: 'SUBMITTED' }),
-      Participant.countDocuments({ status: 'APPROVED' }),
-      Participant.countDocuments({ status: 'REJECTED' }),
-      Category.countDocuments(),
-      Category.countDocuments({ isActive: true })
-    ]);
+export const getAdminDashboard = asyncHandler(async (req, res) => {
+  const stats = await DashboardService.getAdminDashboardStats();
+  return ApiResponse.success(res, 'Admin dashboard statistics fetched', stats, 200);
+});
 
-    res.status(200).json({
-      success: true,
-      stats: {
-        totalParticipants,
-        pendingParticipants,
-        submittedParticipants,
-        approvedParticipants,
-        rejectedParticipants,
-        totalCategories,
-        activeCategories
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-module.exports = {
-  getDashboardStats
-};
+export const getJuryDashboard = asyncHandler(async (req, res) => {
+  const stats = await DashboardService.getJuryDashboardStats(req.user._id);
+  return ApiResponse.success(res, 'Jury dashboard statistics fetched', stats, 200);
+});

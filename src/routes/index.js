@@ -1,0 +1,36 @@
+import express from 'express';
+import authRoutes from './authRoutes.js';
+import userRoutes from './userRoutes.js';
+import creatorRoutes from './creatorRoutes.js';
+import categoryRoutes from './categoryRoutes.js';
+import applicationRoutes from './applicationRoutes.js';
+import juryRoutes from './juryRoutes.js';
+import votingRoutes from './votingRoutes.js';
+import notificationRoutes from './notificationRoutes.js';
+import newsRoutes from './newsRoutes.js';
+import galleryRoutes from './galleryRoutes.js';
+import cmsRoutes from './cmsRoutes.js';
+import certificateRoutes from './certificateRoutes.js';
+import dashboardRoutes from './dashboardRoutes.js';
+import reportRoutes from './reportRoutes.js';
+import contactRoutes from './contactRoutes.js';
+
+const router = express.Router();
+
+router.use('/auth', authRoutes);
+router.use('/users', userRoutes);
+router.use('/creators', creatorRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/applications', applicationRoutes);
+router.use('/jury', juryRoutes);
+router.use('/voting', votingRoutes);
+router.use('/notifications', notificationRoutes);
+router.use('/news', newsRoutes);
+router.use('/gallery', galleryRoutes);
+router.use('/cms', cmsRoutes);
+router.use('/certificates', certificateRoutes);
+router.use('/dashboard', dashboardRoutes);
+router.use('/reports', reportRoutes);
+router.use('/contact', contactRoutes);
+
+export default router;

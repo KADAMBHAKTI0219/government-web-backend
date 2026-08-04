@@ -1,37 +1,61 @@
 {
   "info": {
-    "_postman_id": "government-creator-awards-api-v1",
-    "name": "Government Creator Awards Portal API",
-    "description": "Complete Postman collection for Government Creator Awards Portal backend (Auth, OTP, Categories, Participants, and Dashboard Stats).",
+    "_postman_id": "cg-creator-awards-api-v1",
+    "name": "Chhattisgarh Creator & Influencer Awards Portal API",
+    "description": "Official Government REST API Backend Postman Collection for Chhattisgarh Creator & Influencer Awards Portal. Includes all endpoints for Auth, Users, Categories, Nominations, Jury, Voting, Notifications, News, Gallery, CMS, Certificates, Reports, and Support.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     {
       "key": "baseUrl",
-      "value": "http://localhost:5000",
+      "value": "http://localhost:5000/api/v1",
       "type": "string"
     },
     {
-      "key": "adminToken",
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refreshToken",
       "value": "",
       "type": "string"
     }
   ],
   "item": [
     {
-      "name": "Authentication",
+      "name": "1. Authentication",
       "item": [
         {
-          "name": "Admin Login",
+          "name": "Register Creator",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ramesh Kumar\",\n  \"email\": \"creator@gmail.com\",\n  \"phone\": \"9876543210\",\n  \"password\": \"password123\",\n  \"district\": \"Raipur\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login User / Admin",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
                   "var jsonData = pm.response.json();",
-                  "if (jsonData.token) {",
-                  "    pm.collectionVariables.set('adminToken', jsonData.token);",
-                  "    console.log('adminToken saved automatically:', jsonData.token);",
+                  "if (jsonData.success && jsonData.data.accessToken) {",
+                  "    pm.collectionVariables.set('accessToken', jsonData.data.accessToken);",
+                  "    pm.collectionVariables.set('refreshToken', jsonData.data.refreshToken);",
+                  "    console.log('Saved accessToken and refreshToken to collection variables');",
                   "}"
                 ],
                 "type": "text/javascript"
@@ -41,537 +65,863 @@
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"password\"\n}"
+              "raw": "{\n  \"email\": \"admin@gmail.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/auth/login",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "auth",
-                "login"
-              ]
-            },
-            "description": "Authenticate Admin and automatically store signed JWT token into {{adminToken}} collection variable."
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "OTP Verification",
-      "item": [
-        {
-          "name": "Send OTP",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"phone\": \"9876543210\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/otp/send",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "otp",
-                "send"
-              ]
-            },
-            "description": "Send 6-digit OTP to mobile number via Fast2SMS (or Dev console mode)."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          }
         },
         {
-          "name": "Verify OTP",
+          "name": "Refresh Token",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"phone\": \"9876543210\",\n  \"otp\": \"123456\"\n}"
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/otp/verify",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "otp",
-                "verify"
-              ]
+              "raw": "{{baseUrl}}/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh-token"]
+            }
+          }
+        },
+        {
+          "name": "Verify Email OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"creator@gmail.com\",\n  \"otp\": \"123456\"\n}"
             },
-            "description": "Verify OTP code for mobile number."
-          },
-          "response": []
+            "url": {
+              "raw": "{{baseUrl}}/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "verify-email"]
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"creator@gmail.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/forgot-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "forgot-password"]
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"RESET_TOKEN_HERE\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "reset-password"]
+            }
+          }
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          }
         }
       ]
     },
     {
-      "name": "Categories",
+      "name": "2. Users & Creators",
+      "item": [
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ramesh Kumar\",\n  \"bio\": \"Digital Storyteller and Cultural Content Creator from Raipur\",\n  \"district\": \"Raipur\",\n  \"gender\": \"Male\",\n  \"dob\": \"1998-05-15\",\n  \"portfolioUrl\": \"https://youtube.com/@cgcreator\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Upload Profile Image",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/profile-image",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "profile-image"]
+            }
+          }
+        },
+        {
+          "name": "Update Creator Social Links",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"socialLinks\": [\n    {\n      \"platform\": \"youtube\",\n      \"url\": \"https://youtube.com/@cgcreator\",\n      \"followerCount\": 50000,\n      \"handle\": \"@cgcreator\"\n    },\n    {\n      \"platform\": \"instagram\",\n      \"url\": \"https://instagram.com/cgcreator\",\n      \"followerCount\": 25000,\n      \"handle\": \"@cgcreator\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/creators/social-links",
+              "host": ["{{baseUrl}}"],
+              "path": ["creators", "social-links"]
+            }
+          }
+        },
+        {
+          "name": "Get Creator Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/creators/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["creators", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/all?role=CREATOR&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "all"],
+              "query": [
+                { "key": "role", "value": "CREATOR" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Award Categories",
       "item": [
         {
           "name": "Get All Categories (Public)",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "categories"
-              ]
-            },
-            "description": "Public list of award categories."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            }
+          }
         },
         {
-          "name": "Get Category by Slug (Public)",
+          "name": "Get Category by Slug",
           "request": {
             "method": "GET",
-            "header": [],
             "url": {
-              "raw": "{{baseUrl}}/api/categories/tech-ai-innovation-creator",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "categories",
-                "tech-ai-innovation-creator"
-              ]
-            },
-            "description": "Public endpoint to retrieve category by slug."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/categories/chhattisgarhiya-sanskriti-ambassador",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "chhattisgarhiya-sanskriti-ambassador"]
+            }
+          }
         },
         {
           "name": "Create Category (Admin)",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
             ],
             "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "tier",
-                  "value": "A_CULTURE_IDENTITY",
-                  "type": "text"
-                },
-                {
-                  "key": "title",
-                  "value": "Digital Gaming & Esports Creator",
-                  "type": "text"
-                },
-                {
-                  "key": "shortDescription",
-                  "value": "Celebrating top game developers, streamers, and esports content creators.",
-                  "type": "text"
-                },
-                {
-                  "key": "taskBrief",
-                  "value": "Submit a video or game demo highlighting positive gaming culture or educational gaming.",
-                  "type": "text"
-                },
-                {
-                  "key": "hashtag",
-                  "value": "#IndiaGamingAwards",
-                  "type": "text"
-                },
-                {
-                  "key": "prizeTier",
-                  "value": "FLAGSHIP",
-                  "type": "text"
-                },
-                {
-                  "key": "cashPrizeMin",
-                  "value": "50000",
-                  "type": "text"
-                },
-                {
-                  "key": "cashPrizeMax",
-                  "value": "300000",
-                  "type": "text"
-                },
-                {
-                  "key": "isActive",
-                  "value": "true",
-                  "type": "text"
-                },
-                {
-                  "key": "image",
-                  "type": "file",
-                  "src": [],
-                  "description": "Option 1: Upload image file"
-                },
-                {
-                  "key": "imageUrl",
-                  "value": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80",
-                  "type": "text",
-                  "description": "Option 2: Direct image URL string"
-                }
-              ]
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Tourism & Heritage Storyteller\",\n  \"tier\": \"A_CULTURE_IDENTITY\",\n  \"shortDescription\": \"Spotlighting travel vloggers showcasing Chhattisgarh beauty.\",\n  \"taskBrief\": \"Produce a video exploring hidden waterfalls or eco-tourism sites of the state.\",\n  \"prizeTier\": \"FLAGSHIP\",\n  \"cashPrizeMin\": 50000,\n  \"cashPrizeMax\": 500000\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/categories",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "categories"
-              ]
-            },
-            "description": "Create a new category (supports both file upload via 'image' file field OR direct image URL string via 'image'/'imageUrl' body parameter)."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories"]
+            }
+          }
         },
         {
           "name": "Update Category (Admin)",
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
             ],
             "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "shortDescription",
-                  "value": "Updated description for digital gaming & esports award category.",
-                  "type": "text"
-                }
-              ]
+              "mode": "raw",
+              "raw": "{\n  \"shortDescription\": \"Updated short description for tourism category.\",\n  \"isFeatured\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/categories/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "categories",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "CATEGORY_ID_HERE"
-                }
-              ]
-            },
-            "description": "Update category by ID."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/categories/CATEGORY_ID_HERE",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "CATEGORY_ID_HERE"]
+            }
+          }
         },
         {
           "name": "Delete Category (Admin)",
           "request": {
             "method": "DELETE",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/categories/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "categories",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "CATEGORY_ID_HERE"
-                }
-              ]
-            },
-            "description": "Delete category by ID."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/categories/CATEGORY_ID_HERE",
+              "host": ["{{baseUrl}}"],
+              "path": ["categories", "CATEGORY_ID_HERE"]
+            }
+          }
         }
       ]
     },
     {
-      "name": "Participants",
+      "name": "4. Nominations & Applications",
       "item": [
         {
-          "name": "Submit Participant Nomination (Public)",
+          "name": "Create Nomination Draft (Creator)",
           "request": {
             "method": "POST",
             "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Rahul Sharma\",\n  \"email\": \"rahul.sharma@example.com\",\n  \"phone\": \"9876543210\",\n  \"age\": 25,\n  \"district\": \"Mumbai Suburban\",\n  \"platform\": \"YouTube\",\n  \"category\": \"tech-ai-innovation-creator\",\n  \"submissionLink\": \"https://youtube.com/watch?v=example123\",\n  \"instagram\": \"https://instagram.com/rahultech\",\n  \"youtube\": \"https://youtube.com/@rahultech\",\n  \"twitter\": \"https://x.com/rahultech\",\n  \"linkedin\": \"https://linkedin.com/in/rahultech\",\n  \"isInternational\": false,\n  \"privacyAccepted\": true,\n  \"consentAccepted\": true\n}"
+              "raw": "{\n  \"category\": \"CATEGORY_ID_HERE\",\n  \"title\": \"Bastariya Folk Art Documentary Series\",\n  \"workSummary\": \"A 3-part documentary showcasing traditional dhokra art and tribal craft masters of Bastar.\",\n  \"contentUrl\": \"https://youtube.com/watch?v=samplevideo\",\n  \"district\": \"Bastar\",\n  \"impactDescription\": \"Reached over 200,000 viewers promoting local artisans.\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/participants",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "participants"
-              ]
-            },
-            "description": "Submit nomination form (Requires OTP to be verified for phone number first)."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/applications",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications"]
+            }
+          }
         },
         {
-          "name": "Get Participant Profile (by Phone/Email/ID)",
+          "name": "Upload Media to Nomination",
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/api/participants/profile?phone=9876543210",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "participants",
-                "profile"
-              ],
-              "query": [
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
                 {
-                  "key": "phone",
-                  "value": "9876543210",
-                  "description": "Lookup by mobile number"
+                  "key": "file",
+                  "type": "file",
+                  "src": ""
                 },
                 {
-                  "key": "email",
-                  "value": "rahul.sharma@example.com",
-                  "disabled": true,
-                  "description": "Lookup by email address"
-                },
-                {
-                  "key": "id",
-                  "value": "PARTICIPANT_ID_HERE",
-                  "disabled": true,
-                  "description": "Lookup by participant ID"
+                  "key": "fileType",
+                  "value": "document",
+                  "type": "text"
                 }
               ]
             },
-            "description": "Get complete participant profile by phone, email, or participant ID."
-          },
-          "response": []
+            "url": {
+              "raw": "{{baseUrl}}/applications/APPLICATION_ID_HERE/upload",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "APPLICATION_ID_HERE", "upload"]
+            }
+          }
         },
         {
-          "name": "Get All Participants (Admin)",
+          "name": "Submit Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/applications/APPLICATION_ID_HERE/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "APPLICATION_ID_HERE", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Get Applications List",
           "request": {
             "method": "GET",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/participants?status=PENDING&page=1&limit=20",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "participants"
-              ],
+              "raw": "{{baseUrl}}/applications?status=SUBMITTED&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications"],
               "query": [
-                {
-                  "key": "status",
-                  "value": "PENDING"
-                },
-                {
-                  "key": "page",
-                  "value": "1"
-                },
-                {
-                  "key": "limit",
-                  "value": "20"
-                }
+                { "key": "status", "value": "SUBMITTED" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
               ]
-            },
-            "description": "Get all participant nominations with optional status filter, search, and pagination."
-          },
-          "response": []
+            }
+          }
         },
         {
-          "name": "Get Single Participant (Admin)",
+          "name": "Get Application Details",
           "request": {
             "method": "GET",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/participants/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "participants",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "PARTICIPANT_ID_HERE"
-                }
-              ]
-            },
-            "description": "Retrieve full details of a single participant."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/applications/APPLICATION_ID_HERE",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "APPLICATION_ID_HERE"]
+            }
+          }
         },
         {
-          "name": "Update Participant Status (Admin)",
+          "name": "Update Application Status (Admin)",
           "request": {
             "method": "PUT",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"status\": \"APPROVED\"\n}"
+              "raw": "{\n  \"status\": \"SHORTLISTED\",\n  \"remarks\": \"Selected for jury review round.\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/participants/:id/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "participants",
-                ":id",
-                "status"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "PARTICIPANT_ID_HERE"
-                }
-              ]
-            },
-            "description": "Update participant status (PENDING, SUBMITTED, APPROVED, REJECTED)."
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Participant (Admin)",
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/participants/:id",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "participants",
-                ":id"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "PARTICIPANT_ID_HERE"
-                }
-              ]
-            },
-            "description": "Delete participant record."
-          },
-          "response": []
+              "raw": "{{baseUrl}}/applications/APPLICATION_ID_HERE/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["applications", "APPLICATION_ID_HERE", "status"]
+            }
+          }
         }
       ]
     },
     {
-      "name": "Dashboard",
+      "name": "5. Jury Evaluation",
       "item": [
         {
-          "name": "Get Dashboard Stats (Admin)",
+          "name": "Assign Jury Member (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"juryId\": \"JURY_USER_ID_HERE\",\n  \"applicationId\": \"APPLICATION_ID_HERE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/jury/assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["jury", "assign"]
+            }
+          }
+        },
+        {
+          "name": "Get Assigned Applications (Jury)",
           "request": {
             "method": "GET",
             "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{adminToken}}"
-              }
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/dashboard/stats",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "dashboard",
-                "stats"
+              "raw": "{{baseUrl}}/jury/assigned?status=PENDING&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["jury", "assigned"],
+              "query": [
+                { "key": "status", "value": "PENDING" }
               ]
+            }
+          }
+        },
+        {
+          "name": "Score Application (Jury)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scores\": {\n    \"creativity\": 23,\n    \"socialImpact\": 24,\n    \"technicalQuality\": 22,\n    \"culturalRelevance\": 25\n  },\n  \"recommendation\": \"APPROVE\",\n  \"remarks\": \"Exceptional cultural authenticity and high production value.\"\n}"
             },
-            "description": "Get summary count statistics for dashboard cards."
-          },
-          "response": []
+            "url": {
+              "raw": "{{baseUrl}}/jury/score/APPLICATION_ID_HERE",
+              "host": ["{{baseUrl}}"],
+              "path": ["jury", "score", "APPLICATION_ID_HERE"]
+            }
+          }
+        },
+        {
+          "name": "Get Jury Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/jury/leaderboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["jury", "leaderboard"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Public Voting",
+      "item": [
+        {
+          "name": "Cast Vote (Public)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"APPLICATION_ID_HERE\",\n  \"fingerprint\": \"device_fingerprint_hash_abc123\",\n  \"voterEmail\": \"voter@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/voting/cast",
+              "host": ["{{baseUrl}}"],
+              "path": ["voting", "cast"]
+            }
+          }
+        },
+        {
+          "name": "Get Voting Analytics & Leaderboard",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/voting/analytics",
+              "host": ["{{baseUrl}}"],
+              "path": ["voting", "analytics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Notifications & Announcements",
+      "item": [
+        {
+          "name": "Get User Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications"]
+            }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/notifications/NOTIFICATION_ID_HERE/read",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "NOTIFICATION_ID_HERE", "read"]
+            }
+          }
+        },
+        {
+          "name": "Broadcast Announcement (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Nomination Deadline Extended!\",\n  \"message\": \"The final date for submitting nominations has been extended to August 30, 2026.\",\n  \"link\": \"/timeline\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/notifications/broadcast",
+              "host": ["{{baseUrl}}"],
+              "path": ["notifications", "broadcast"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. News & Press Releases",
+      "item": [
+        {
+          "name": "Get All News (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/news?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["news"]
+            }
+          }
+        },
+        {
+          "name": "Get News Article by Slug",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/news/chhattisgarh-creator-awards-2026-announced",
+              "host": ["{{baseUrl}}"],
+              "path": ["news", "chhattisgarh-creator-awards-2026-announced"]
+            }
+          }
+        },
+        {
+          "name": "Create News Article (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Chhattisgarh Creator Awards 2026 Officially Launched\",\n  \"summary\": \"Hon'ble Chief Minister launches official portal for state digital creators.\",\n  \"content\": \"Full news article body text describing the launch event and category announcements.\",\n  \"status\": \"PUBLISHED\",\n  \"isFeatured\": true,\n  \"tags\": [\"Awards\", \"Culture\", \"Government\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/news",
+              "host": ["{{baseUrl}}"],
+              "path": ["news"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Gallery",
+      "item": [
+        {
+          "name": "Get Gallery Albums (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/gallery?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["gallery"]
+            }
+          }
+        },
+        {
+          "name": "Create Gallery Album (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"albumName\": \"Launch Event Highlights 2026\",\n  \"description\": \"Official photos and videos from the state award launch ceremony.\",\n  \"isFeatured\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/gallery",
+              "host": ["{{baseUrl}}"],
+              "path": ["gallery"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. CMS & Portal Content",
+      "item": [
+        {
+          "name": "Get All CMS Sections",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/cms/all",
+              "host": ["{{baseUrl}}"],
+              "path": ["cms", "all"]
+            }
+          }
+        },
+        {
+          "name": "Get CMS Section by Key",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/cms/hero",
+              "host": ["{{baseUrl}}"],
+              "path": ["cms", "hero"]
+            }
+          }
+        },
+        {
+          "name": "Update CMS Section (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"hero\",\n  \"title\": \"Chhattisgarh State Creator & Influencer Awards 2026\",\n  \"subtitle\": \"Celebrating Digital Innovation and Storytelling Excellence\",\n  \"content\": {\n    \"ctaText\": \"Nominate Now\",\n    \"bannerImage\": \"https://images.unsplash.com/photo-1544717305-2782549b5136?w=1200&q=80\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/cms/hero",
+              "host": ["{{baseUrl}}"],
+              "path": ["cms", "hero"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Certificates & Verification",
+      "item": [
+        {
+          "name": "Verify Certificate (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/certificates/verify?hash=VERIFICATION_HASH_HERE",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "verify"],
+              "query": [
+                { "key": "hash", "value": "VERIFICATION_HASH_HERE" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get My Certificates (Creator)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/certificates/my-certificates",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "my-certificates"]
+            }
+          }
+        },
+        {
+          "name": "Generate Award Certificate (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"applicationId\": \"APPLICATION_ID_HERE\",\n  \"awardTitle\": \"Chhattisgarhiya Sanskriti Ambassador Award 2026\",\n  \"position\": \"1ST_PLACE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/certificates/generate",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "generate"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Dashboards & Reports",
+      "item": [
+        {
+          "name": "Get Admin Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/dashboard/admin",
+              "host": ["{{baseUrl}}"],
+              "path": ["dashboard", "admin"]
+            }
+          }
+        },
+        {
+          "name": "Export Applications to Excel (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/applications/excel",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "applications", "excel"]
+            }
+          }
+        },
+        {
+          "name": "Export Applications to CSV (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/reports/applications/csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["reports", "applications", "csv"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13. Contact & Support",
+      "item": [
+        {
+          "name": "Submit Contact / Grievance Query",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Suresh Patel\",\n  \"email\": \"suresh@example.com\",\n  \"phone\": \"9876543210\",\n  \"subject\": \"Query regarding document upload\",\n  \"message\": \"Can I submit MP4 video links alongside PDF portfolio?\",\n  \"type\": \"GENERAL\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contact/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["contact", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Get All Contact Queries (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/contact/all?status=PENDING&page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["contact", "all"],
+              "query": [
+                { "key": "status", "value": "PENDING" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
         }
       ]
     }

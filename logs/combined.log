@@ -1,0 +1,365 @@
+[2026-08-04 11:07:42:742] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 11:07:52:752] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 11:10:39:1039] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 11:26:07:267] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 11:28:29:2829] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:28:29:2829] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:28:29:2829] [INFO]: ===============================================
+[2026-08-04 11:28:29:2829] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:28:29:2829] [INFO]: ===============================================
+[2026-08-04 11:28:29:2829] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:28:29:2829] [ERROR]: Database seeding failed: next is not a function
+[2026-08-04 11:28:29:2829] [INFO]: ===================================================
+[2026-08-04 11:28:29:2829] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:28:29:2829] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:28:29:2829] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:28:29:2829] [INFO]: ===================================================
+[2026-08-04 11:29:15:2915] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:15:2915] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:15:2915] [INFO]: ===============================================
+[2026-08-04 11:29:15:2915] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:29:15:2915] [INFO]: ===============================================
+[2026-08-04 11:29:15:2915] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:29:15:2915] [INFO]: Created default Super Admin user: admin@gmail.com (password: password123)
+[2026-08-04 11:29:15:2915] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:29:15:2915] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:29:15:2915] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:29:15:2915] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:29:15:2915] [INFO]: ===================================================
+[2026-08-04 11:29:15:2915] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:29:15:2915] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:29:15:2915] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:29:15:2915] [INFO]: ===================================================
+[2026-08-04 11:29:20:2920] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:20:2920] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:20:2920] [INFO]: ===============================================
+[2026-08-04 11:29:20:2920] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:29:20:2920] [INFO]: ===============================================
+[2026-08-04 11:29:20:2920] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:29:20:2920] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:29:20:2920] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:29:20:2920] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:29:20:2920] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:29:20:2920] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:29:20:2920] [INFO]: ===================================================
+[2026-08-04 11:29:20:2920] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:29:20:2920] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:29:20:2920] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:29:20:2920] [INFO]: ===================================================
+[2026-08-04 11:29:25:2925] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:25:2925] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:25:2925] [INFO]: ===============================================
+[2026-08-04 11:29:25:2925] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:29:25:2925] [INFO]: ===============================================
+[2026-08-04 11:29:26:2926] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:29:26:2926] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:29:26:2926] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:29:26:2926] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:29:26:2926] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:29:26:2926] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:29:26:2926] [INFO]: ===================================================
+[2026-08-04 11:29:26:2926] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:29:26:2926] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:29:26:2926] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:29:26:2926] [INFO]: ===================================================
+[2026-08-04 11:29:31:2931] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:31:2931] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:31:2931] [INFO]: ===============================================
+[2026-08-04 11:29:31:2931] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:29:31:2931] [INFO]: ===============================================
+[2026-08-04 11:29:31:2931] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:29:31:2931] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:29:31:2931] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:29:31:2931] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:29:31:2931] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:29:31:2931] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:29:31:2931] [INFO]: ===================================================
+[2026-08-04 11:29:31:2931] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:29:31:2931] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:29:31:2931] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:29:31:2931] [INFO]: ===================================================
+[2026-08-04 11:29:35:2935] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:35:2935] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:35:2935] [INFO]: ===============================================
+[2026-08-04 11:29:35:2935] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:29:35:2935] [INFO]: ===============================================
+[2026-08-04 11:29:36:2936] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:29:36:2936] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:29:36:2936] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:29:36:2936] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:29:36:2936] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:29:36:2936] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:29:36:2936] [INFO]: ===================================================
+[2026-08-04 11:29:36:2936] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:29:36:2936] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:29:36:2936] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:29:36:2936] [INFO]: ===================================================
+[2026-08-04 11:29:45:2945] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:45:2945] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:45:2945] [INFO]: ===============================================
+[2026-08-04 11:29:45:2945] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:29:45:2945] [INFO]: ===============================================
+[2026-08-04 11:29:45:2945] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:29:45:2945] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:29:45:2945] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:29:45:2945] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:29:45:2945] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:29:45:2945] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:29:45:2945] [INFO]: ===================================================
+[2026-08-04 11:29:45:2945] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:29:45:2945] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:29:45:2945] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:29:45:2945] [INFO]: ===================================================
+[2026-08-04 11:29:51:2951] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:51:2951] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:51:2951] [INFO]: ===============================================
+[2026-08-04 11:29:51:2951] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:29:51:2951] [INFO]: ===============================================
+[2026-08-04 11:29:51:2951] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:29:51:2951] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:29:51:2951] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:29:51:2951] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:29:51:2951] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:29:51:2951] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:29:51:2951] [INFO]: ===================================================
+[2026-08-04 11:29:51:2951] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:29:51:2951] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:29:51:2951] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:29:51:2951] [INFO]: ===================================================
+[2026-08-04 11:29:56:2956] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:56:2956] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:29:56:2956] [INFO]: ===============================================
+[2026-08-04 11:29:56:2956] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:29:56:2956] [INFO]: ===============================================
+[2026-08-04 11:29:56:2956] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:29:56:2956] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:29:56:2956] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:29:56:2956] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:29:56:2956] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:29:56:2956] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:29:56:2956] [INFO]: ===================================================
+[2026-08-04 11:29:56:2956] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:29:56:2956] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:29:56:2956] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:29:56:2956] [INFO]: ===================================================
+[2026-08-04 11:30:07:307] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:07:307] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:07:307] [INFO]: ===============================================
+[2026-08-04 11:30:07:307] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:30:07:307] [INFO]: ===============================================
+[2026-08-04 11:30:07:307] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:30:07:307] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:30:07:307] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:30:07:307] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:30:07:307] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:30:07:307] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:30:08:308] [INFO]: ===================================================
+[2026-08-04 11:30:08:308] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:30:08:308] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:30:08:308] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:30:08:308] [INFO]: ===================================================
+[2026-08-04 11:30:12:3012] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:12:3012] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:12:3012] [INFO]: ===============================================
+[2026-08-04 11:30:12:3012] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:30:12:3012] [INFO]: ===============================================
+[2026-08-04 11:30:12:3012] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:30:12:3012] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:30:12:3012] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:30:12:3012] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:30:12:3012] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:30:12:3012] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:30:12:3012] [INFO]: ===================================================
+[2026-08-04 11:30:12:3012] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:30:12:3012] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:30:12:3012] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:30:12:3012] [INFO]: ===================================================
+[2026-08-04 11:30:19:3019] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:19:3019] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:19:3019] [INFO]: ===============================================
+[2026-08-04 11:30:19:3019] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:30:19:3019] [INFO]: ===============================================
+[2026-08-04 11:30:19:3019] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:30:19:3019] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:30:19:3019] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:30:19:3019] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:30:19:3019] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:30:19:3019] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:30:19:3019] [INFO]: ===================================================
+[2026-08-04 11:30:19:3019] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:30:19:3019] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:30:19:3019] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:30:19:3019] [INFO]: ===================================================
+[2026-08-04 11:30:26:3026] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:26:3026] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:26:3026] [INFO]: ===============================================
+[2026-08-04 11:30:26:3026] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:30:26:3026] [INFO]: ===============================================
+[2026-08-04 11:30:26:3026] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:30:26:3026] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:30:26:3026] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:30:26:3026] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:30:26:3026] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:30:26:3026] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:30:26:3026] [INFO]: ===================================================
+[2026-08-04 11:30:26:3026] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:30:26:3026] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:30:26:3026] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:30:26:3026] [INFO]: ===================================================
+[2026-08-04 11:30:34:3034] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:30:34:3034] [INFO]: ===============================================
+[2026-08-04 11:30:34:3034] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:30:34:3034] [INFO]: ===============================================
+[2026-08-04 11:30:35:3035] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:30:35:3035] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:30:35:3035] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:30:35:3035] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:30:35:3035] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:32:35:3235] [ERROR]: Failed to send email to creator@gmail.com: Missing credentials for "PLAIN"
+[2026-08-04 11:33:13:3313] [ERROR]: Failed to send email to kadambhakti0219@gmail.com: Missing credentials for "PLAIN"
+[2026-08-04 11:36:50:3650] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:36:50:3650] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:36:50:3650] [INFO]: ===============================================
+[2026-08-04 11:36:50:3650] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:36:50:3650] [INFO]: ===============================================
+[2026-08-04 11:36:50:3650] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:36:50:3650] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:36:50:3650] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:36:50:3650] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:36:50:3650] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:36:50:3650] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:36:50:3650] [INFO]: ===================================================
+[2026-08-04 11:36:50:3650] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:36:50:3650] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:36:50:3650] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:36:50:3650] [INFO]: ===================================================
+[2026-08-04 11:37:02:372] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:37:02:372] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:37:02:372] [INFO]: ===============================================
+[2026-08-04 11:37:02:372] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:37:02:372] [INFO]: ===============================================
+[2026-08-04 11:37:02:372] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:37:02:372] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:37:02:372] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:37:02:372] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:37:02:372] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:37:02:372] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:37:02:372] [INFO]: ===================================================
+[2026-08-04 11:37:02:372] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:37:02:372] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:37:02:372] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:37:02:372] [INFO]: ===================================================
+[2026-08-04 11:37:08:378] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:37:08:378] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:37:08:378] [INFO]: ===============================================
+[2026-08-04 11:37:08:378] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:37:08:378] [INFO]: ===============================================
+[2026-08-04 11:37:08:378] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:37:08:378] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:37:08:378] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:37:08:378] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:37:08:378] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:37:08:378] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:37:08:378] [INFO]: ===================================================
+[2026-08-04 11:37:08:378] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:37:08:378] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:37:08:378] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:37:08:378] [INFO]: ===================================================
+[2026-08-04 11:37:33:3733] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:37:33:3733] [INFO]: ===============================================
+[2026-08-04 11:37:33:3733] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:37:33:3733] [INFO]: ===============================================
+[2026-08-04 11:37:33:3733] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:37:33:3733] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:37:33:3733] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:37:33:3733] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:37:33:3733] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:38:24:3824] [INFO]: 🔑 [OTP VERIFICATION CODE] Email: kadambhakti0219@gmail.com | OTP: 331650
+[2026-08-04 11:39:27:3927] [INFO]: 📧 Email sent successfully to kadambhakti0219@gmail.com: <297b325b-77d0-3de5-041e-482c9fa025c7@gmail.com>
+[2026-08-04 11:40:12:4012] [ERROR]: [POST /api/v1/auth/login] Error: Invalid email or password
+    at AuthService.login (file:///C:/Users/HP/Desktop/Nex%20Alliance%20Project/government-web-backend/src/services/AuthService.js:51:13)
+    at async file:///C:/Users/HP/Desktop/Nex%20Alliance%20Project/government-web-backend/src/controllers/AuthController.js:14:18
+[2026-08-04 11:44:42:4442] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:44:42:4442] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:44:42:4442] [INFO]: ===============================================
+[2026-08-04 11:44:42:4442] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:44:42:4442] [INFO]: ===============================================
+[2026-08-04 11:44:42:4442] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:44:42:4442] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:44:42:4442] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:44:42:4442] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:44:42:4442] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:44:42:4442] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:44:42:4442] [INFO]: ===================================================
+[2026-08-04 11:44:42:4442] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:44:42:4442] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:44:42:4442] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:44:42:4442] [INFO]: ===================================================
+[2026-08-04 11:44:55:4455] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:44:55:4455] [INFO]: ===============================================
+[2026-08-04 11:44:55:4455] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:44:55:4455] [INFO]: ===============================================
+[2026-08-04 11:44:55:4455] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:44:55:4455] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:44:55:4455] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:44:55:4455] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:44:55:4455] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:48:40:4840] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:48:40:4840] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:48:40:4840] [INFO]: ===============================================
+[2026-08-04 11:48:40:4840] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:48:40:4840] [INFO]: ===============================================
+[2026-08-04 11:48:41:4841] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:48:41:4841] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:48:41:4841] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:48:41:4841] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:48:41:4841] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:48:41:4841] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:48:41:4841] [INFO]: ===================================================
+[2026-08-04 11:48:41:4841] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:48:41:4841] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:48:41:4841] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:48:41:4841] [INFO]: ===================================================
+[2026-08-04 11:48:54:4854] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:48:54:4854] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 11:48:54:4854] [INFO]: ===============================================
+[2026-08-04 11:48:54:4854] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 11:48:54:4854] [INFO]: ===============================================
+[2026-08-04 11:48:55:4855] [INFO]: System Roles seeded successfully.
+[2026-08-04 11:48:55:4855] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 11:48:55:4855] [INFO]: Award Categories seeded successfully.
+[2026-08-04 11:48:55:4855] [INFO]: CMS default content seeded successfully.
+[2026-08-04 11:48:55:4855] [INFO]: Portal settings initialized successfully.
+[2026-08-04 11:48:55:4855] [INFO]: Seeding completed cleanly!
+[2026-08-04 11:48:55:4855] [INFO]: ===================================================
+[2026-08-04 11:48:55:4855] [INFO]: Server running in development mode on port 5000
+[2026-08-04 11:48:55:4855] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 11:48:55:4855] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 11:48:55:4855] [INFO]: ===================================================
+[2026-08-04 12:11:32:1132] [INFO]: 🔑 [OTP VERIFICATION CODE] Email: kadambhakti0219@gmail.com | OTP: 896606
+[2026-08-04 12:12:37:1237] [INFO]: 📧 Email sent successfully to kadambhakti0219@gmail.com: <cb286072-b554-1fd3-d8d4-8f38ad5d393c@gmail.com>
+[2026-08-04 12:18:39:1839] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 12:18:39:1839] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 12:18:39:1839] [INFO]: ===============================================
+[2026-08-04 12:18:39:1839] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 12:18:39:1839] [INFO]: ===============================================
+[2026-08-04 12:18:39:1839] [INFO]: System Roles seeded successfully.
+[2026-08-04 12:18:39:1839] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 12:18:39:1839] [INFO]: Award Categories seeded successfully.
+[2026-08-04 12:18:39:1839] [INFO]: CMS default content seeded successfully.
+[2026-08-04 12:18:39:1839] [INFO]: Portal settings initialized successfully.
+[2026-08-04 12:18:39:1839] [INFO]: Seeding completed cleanly!
+[2026-08-04 12:18:39:1839] [INFO]: ===================================================
+[2026-08-04 12:18:39:1839] [INFO]: Server running in development mode on port 5000
+[2026-08-04 12:18:39:1839] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-04 12:18:39:1839] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-04 12:18:39:1839] [INFO]: ===================================================
+[2026-08-04 12:18:44:1844] [INFO]: MongoDB Connected: 127.0.0.1
+[2026-08-04 12:18:44:1844] [INFO]: ===============================================
+[2026-08-04 12:18:44:1844] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-04 12:18:44:1844] [INFO]: ===============================================
+[2026-08-04 12:18:44:1844] [INFO]: System Roles seeded successfully.
+[2026-08-04 12:18:44:1844] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-04 12:18:44:1844] [INFO]: Award Categories seeded successfully.
+[2026-08-04 12:18:44:1844] [INFO]: CMS default content seeded successfully.
+[2026-08-04 12:18:44:1844] [INFO]: Portal settings initialized successfully.

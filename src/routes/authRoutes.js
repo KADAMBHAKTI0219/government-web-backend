@@ -1,7 +1,25 @@
-const express = require('express');
+import express from 'express';
+import * as AuthController from '../controllers/AuthController.js';
+import { authenticate } from '../middleware/auth.js';
+import { validateRequest } from '../middleware/validator.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
+import {
+  registerValidator,
+  loginValidator,
+  forgotPasswordValidator,
+  resetPasswordValidator,
+  changePasswordValidator
+} from '../validators/authValidator.js';
+
 const router = express.Router();
-const { login } = require('../controllers/authController');
 
-router.post('/login', login);
+router.post('/register', authLimiter, registerValidator, validateRequest, AuthController.register);
+router.post('/login', authLimiter, loginValidator, validateRequest, AuthController.login);
+router.post('/refresh-token', AuthController.refreshToken);
+router.post('/logout', authenticate, AuthController.logout);
+router.post('/verify-email', validateRequest, AuthController.verifyEmail);
+router.post('/forgot-password', authLimiter, forgotPasswordValidator, validateRequest, AuthController.forgotPassword);
+router.post('/reset-password', authLimiter, resetPasswordValidator, validateRequest, AuthController.resetPassword);
+router.put('/change-password', authenticate, changePasswordValidator, validateRequest, AuthController.changePassword);
 
-module.exports = router;
+export default router;
