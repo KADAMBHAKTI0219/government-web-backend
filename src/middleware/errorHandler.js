@@ -19,12 +19,12 @@ export const globalErrorHandler = (err, req, res, next) => {
       field: e.path,
       message: e.message
     }));
-    return ApiResponse.error(res, 'Database Validation Error', errors, 400);
+    return ApiResponse.error(res, err.message || 'Database Validation Error', errors, 400);
   }
 
   // Mongoose duplicate key error
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0];
+    const field = err.keyValue ? Object.keys(err.keyValue)[0] : 'field';
     return ApiResponse.error(
       res,
       `Duplicate field value entered for '${field}'. Please use another value.`,
@@ -35,12 +35,17 @@ export const globalErrorHandler = (err, req, res, next) => {
 
   // Mongoose CastError (invalid ObjectId)
   if (err.name === 'CastError') {
-    return ApiResponse.error(res, `Resource not found with ID: ${err.value}`, [], 404);
+    return ApiResponse.error(
+      res,
+      `Invalid format for '${err.path}': '${err.value}'`,
+      [{ field: err.path, message: `Invalid ObjectId format` }],
+      400
+    );
   }
 
   // JWT Errors
   if (err.name === 'JsonWebTokenError') {
-    return ApiResponse.error(res, 'Invalid Token', [{ message: 'Token is malformed' }], 401);
+    return ApiResponse.error(res, 'Invalid Token', [{ message: 'Token is malformed or invalid' }], 401);
   }
 
   if (err.name === 'TokenExpiredError') {
@@ -52,13 +57,13 @@ export const globalErrorHandler = (err, req, res, next) => {
     return ApiResponse.error(res, `File upload error: ${err.message}`, [err], 400);
   }
 
-  const statusCode = err.statusCode || err.status || 500;
+  const statusCode = err.statusCode || err.status || 400;
   const message = err.message || 'Internal Server Error';
 
   return ApiResponse.error(
     res,
     message,
-    process.env.NODE_ENV === 'development' ? [{ stack: err.stack }] : [],
+    [{ message: err.message, stack: process.env.NODE_ENV === 'development' ? err.stack : undefined }],
     statusCode
   );
 };

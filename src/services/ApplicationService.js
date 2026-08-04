@@ -1,7 +1,37 @@
 import { v4 as uuidv4 } from 'uuid';
+import mongoose from 'mongoose';
 import ApplicationRepository from '../repositories/ApplicationRepository.js';
 import SettingsRepository from '../repositories/SettingsRepository.js';
+import Category from '../models/Category.js';
 import { APPLICATION_STATUS } from '../constants/applicationStatuses.js';
+
+async function resolveCategory(catInput) {
+  if (!catInput) return null;
+
+  if (mongoose.Types.ObjectId.isValid(catInput)) {
+    const existing = await Category.findById(catInput);
+    if (existing) return existing._id;
+  }
+
+  const categoryBySlugOrTitle = await Category.findOne({
+    $or: [
+      { slug: catInput },
+      { title: catInput },
+      { slug: catInput.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-') }
+    ]
+  });
+
+  if (categoryBySlugOrTitle) {
+    return categoryBySlugOrTitle._id;
+  }
+
+  const firstCat = await Category.findOne();
+  if (firstCat) {
+    return firstCat._id;
+  }
+
+  return null;
+}
 
 class ApplicationService {
   async createApplication(creatorId, data) {
@@ -11,14 +41,20 @@ class ApplicationService {
     }
 
     const existingCount = await ApplicationRepository.countByFilter({ creator: creatorId });
-    if (existingCount >= settings.maxNominationsPerCreator) {
+    if (settings.maxNominationsPerCreator && existingCount >= settings.maxNominationsPerCreator) {
       throw new Error(`Maximum limit of ${settings.maxNominationsPerCreator} nominations per creator reached.`);
+    }
+
+    const categoryId = await resolveCategory(data.category || data.categoryId);
+    if (!categoryId) {
+      throw new Error('Category not found or invalid.');
     }
 
     const applicationId = `CGAWRD-2026-${uuidv4().substring(0, 8).toUpperCase()}`;
 
     const applicationData = {
       ...data,
+      category: categoryId,
       creator: creatorId,
       applicationId,
       status: APPLICATION_STATUS.DRAFT,
@@ -65,6 +101,10 @@ class ApplicationService {
 
     if (app.status !== APPLICATION_STATUS.DRAFT) {
       throw new Error('Only draft applications can be edited');
+    }
+
+    if (updateData.category || updateData.categoryId) {
+      updateData.category = await resolveCategory(updateData.category || updateData.categoryId);
     }
 
     return await ApplicationRepository.updateById(applicationId, updateData);

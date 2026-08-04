@@ -6,7 +6,7 @@ const participantSchema = new mongoose.Schema(
     phone: { type: String, required: true },
     email: { type: String },
     district: { type: String, required: true },
-    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
+    category: { type: mongoose.Schema.Types.Mixed, required: true },
     workSummary: { type: String, required: true },
     contentUrl: { type: String, required: true },
     status: { type: String, enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' }
