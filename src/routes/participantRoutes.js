@@ -1,10 +1,15 @@
 import express from 'express';
-import { registerParticipant, getParticipants } from '../controllers/participantController.js';
-import { protectAdmin } from '../middleware/authMiddleware.js';
+import * as ParticipantController from '../controllers/ParticipantController.js';
+import { authenticate } from '../middleware/auth.js';
+import { authorize } from '../middleware/rbac.js';
+import { ROLES } from '../constants/roles.js';
 
 const router = express.Router();
 
-router.post('/register', registerParticipant);
-router.get('/', protectAdmin, getParticipants);
+// Public route: Register participant
+router.post('/register', ParticipantController.registerParticipant);
+
+// Admin route: Get all participants
+router.get('/', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.MODERATOR), ParticipantController.getParticipants);
 
 export default router;
