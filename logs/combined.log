@@ -623,3 +623,5 @@
 [2026-08-04 14:39:30:3930] [INFO]: Award Categories seeded successfully.
 [2026-08-04 14:39:30:3930] [INFO]: CMS default content seeded successfully.
 [2026-08-04 14:39:30:3930] [INFO]: Portal settings initialized successfully.
+[2026-08-04 15:07:05:75] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-04 15:12:24:1224] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017

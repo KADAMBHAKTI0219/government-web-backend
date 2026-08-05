@@ -8,6 +8,8 @@ import Settings from '../models/Settings.js';
 import { ROLES } from '../constants/roles.js';
 import logger from '../utils/logger.js';
 
+import fs from 'fs';
+
 dotenv.config();
 
 export const seedDatabase = async () => {
@@ -56,55 +58,13 @@ export const seedDatabase = async () => {
     }
 
     // 3. Seed Default Award Categories
-    const sampleCategories = [
-      {
-        title: 'Chhattisgarhiya Sanskriti Ambassador',
-        slug: 'chhattisgarhiya-sanskriti-ambassador',
-        tier: 'A_CULTURE_IDENTITY',
-        shortDescription: 'Celebrating creators showcasing regional heritage, folk music, and local cultural traditions.',
-        taskBrief: 'Create an engaging video highlighting traditional art, dance, or folk festivals of Chhattisgarh.',
-        hashtag: '#ChhattisgarhiyaSanskriti',
-        prizeTier: 'FLAGSHIP',
-        cashPrizeMin: 50000,
-        cashPrizeMax: 500000,
-        isActive: true,
-        isFeatured: true,
-        order: 1
-      },
-      {
-        title: 'Tech & Civic Innovation Pioneer',
-        slug: 'tech-civic-innovation-pioneer',
-        tier: 'B_NATION_STATE_BUILDING',
-        shortDescription: 'Honoring creators bringing awareness to AI, smart governance, and infrastructure development.',
-        taskBrief: 'Produce a video demonstrating how digital initiatives improve public services and citizen welfare.',
-        hashtag: '#GovTechBuilder',
-        prizeTier: 'MARQUEE',
-        cashPrizeMin: 25000,
-        cashPrizeMax: 300000,
-        isActive: true,
-        isFeatured: true,
-        order: 2
-      },
-      {
-        title: 'Digital Craftsman & Micro-Creator',
-        slug: 'digital-craftsman-micro-creator',
-        tier: 'C_CRAFT_PLATFORM',
-        shortDescription: 'Spotlighting emerging nano creators, digital artists, and handicraft storytellers.',
-        taskBrief: 'Share a story celebrating local artisan skills, handlooms, or sustainable eco-crafts.',
-        hashtag: '#MicroCraftCreator',
-        prizeTier: 'STANDARD',
-        cashPrizeMin: 10000,
-        cashPrizeMax: 100000,
-        isActive: true,
-        isFeatured: true,
-        order: 3
-      }
-    ];
+    const categoriesJsonPath = new URL('./categories.json', import.meta.url);
+    const sampleCategories = JSON.parse(fs.readFileSync(categoriesJsonPath, 'utf-8'));
 
     for (const cat of sampleCategories) {
       await Category.findOneAndUpdate({ slug: cat.slug }, cat, { upsert: true, returnDocument: 'after' });
     }
-    logger.info('Award Categories seeded successfully.');
+    logger.info(`${sampleCategories.length} Award Categories seeded successfully.`);
 
     // 4. Seed Default CMS Data
     const cmsDefaults = [
