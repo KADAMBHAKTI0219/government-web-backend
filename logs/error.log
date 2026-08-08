@@ -10,3 +10,7 @@
     at async file:///C:/Users/HP/Desktop/Nex%20Alliance%20Project/government-web-backend/src/controllers/AuthController.js:14:18
 [2026-08-04 15:07:05:75] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
 [2026-08-04 15:12:24:1224] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-07 18:36:33:3633] [ERROR]: RECAPTCHA_SECRET_KEY is not configured in backend environment variables.
+[2026-08-08 11:27:18:2718] [ERROR]: [POST /api/v1/auth/login] Error: Invalid email or password
+    at AuthService.login (file:///C:/Users/HP/Desktop/Nex%20Alliance%20Project/government-web-backend/src/services/AuthService.js:38:13)
+    at async file:///C:/Users/HP/Desktop/Nex%20Alliance%20Project/government-web-backend/src/controllers/AuthController.js:14:18

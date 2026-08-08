@@ -210,7 +210,7 @@ const swaggerDocument = {
     }
   },
   tags: [
-    { name: 'Authentication', description: 'User & Admin Login, Registration, OTP & Passwords' },
+    { name: 'Authentication', description: 'User & Admin Login, Registration, Passwords' },
     { name: 'Users & Creators', description: 'Profiles, Avatars, Social Handles & Creator Metrics' },
     { name: 'Categories', description: 'Award Category & Tier Operations' },
     { name: 'Applications', description: 'Nomination Applications, Media Uploads & Status Updates' },
@@ -223,7 +223,7 @@ const swaggerDocument = {
     { name: 'Certificates', description: 'PDF Certificate Generation & QR Verification' },
     { name: 'Dashboard & Reports', description: 'Admin Statistics & Data Exports (Excel/CSV)' },
     { name: 'Contact & Support', description: 'Public Inquiries & Helpdesk Queries' },
-    { name: 'OTP & Phone Auth', description: 'SMS OTP Verification' }
+    { name: 'reCAPTCHA', description: 'Google reCAPTCHA Verification' }
   ],
   paths: {
     // ----------------------------------------------------
@@ -252,7 +252,7 @@ const swaggerDocument = {
           }
         },
         responses: {
-          '201': { description: 'Registration successful and OTP generated' }
+          '201': { description: 'Registration successful' }
         }
       }
     },
@@ -310,30 +310,6 @@ const swaggerDocument = {
         security: [{ bearerAuth: [] }],
         responses: {
           '200': { description: 'Logged out successfully' }
-        }
-      }
-    },
-    '/auth/verify-email': {
-      post: {
-        tags: ['Authentication'],
-        summary: 'Verify Email Address using OTP',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['email', 'otp'],
-                properties: {
-                  email: { type: 'string', example: 'creator@gmail.com' },
-                  otp: { type: 'string', example: '123456' }
-                }
-              }
-            }
-          }
-        },
-        responses: {
-          '200': { description: 'Email verified successfully' }
         }
       }
     },
@@ -1337,53 +1313,208 @@ const swaggerDocument = {
     },
 
     // ----------------------------------------------------
-    // 14. OTP & PHONE AUTH
+    // 14. CAPTCHA & RECAPTCHA VERIFICATION
     // ----------------------------------------------------
-    '/otp/send': {
-      post: {
-        tags: ['OTP & Phone Auth'],
-        summary: 'Send SMS OTP to Mobile Number',
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                required: ['phone'],
-                properties: {
-                  phone: { type: 'string', example: '9876543210' }
+    '/captcha/generate': {
+      get: {
+        tags: ['reCAPTCHA'],
+        summary: 'Generate visual SVG CAPTCHA',
+        parameters: [
+          { name: 'width', in: 'query', schema: { type: 'integer', example: 160 }, description: 'Width of SVG image' },
+          { name: 'height', in: 'query', schema: { type: 'integer', example: 60 }, description: 'Height of SVG image' },
+          { name: 'size', in: 'query', schema: { type: 'integer', example: 6 }, description: 'Number of characters' }
+        ],
+        responses: {
+          '200': {
+            description: 'Captcha generated successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    message: { type: 'string', example: 'Captcha generated successfully.' },
+                    data: {
+                      type: 'object',
+                      properties: {
+                        captchaId: { type: 'string', example: 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6' },
+                        captchaSvg: { type: 'string', example: '<svg xmlns=...</svg>' },
+                        captchaImage: { type: 'string', example: 'data:image/svg+xml;base64,...' },
+                        expiresAt: { type: 'string', example: '2026-08-08T11:00:00.000Z' }
+                      }
+                    }
+                  }
                 }
               }
             }
           }
-        },
-        responses: {
-          '200': { description: 'SMS OTP sent' }
         }
       }
     },
-    '/otp/verify': {
+    '/captcha/verify': {
       post: {
-        tags: ['OTP & Phone Auth'],
-        summary: 'Verify SMS OTP',
+        tags: ['reCAPTCHA'],
+        summary: 'Verify SVG CAPTCHA code or Google reCAPTCHA Token',
         requestBody: {
           required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['phone', 'otp'],
                 properties: {
-                  phone: { type: 'string', example: '9876543210' },
-                  otp: { type: 'string', example: '123456' }
+                  captchaId: { type: 'string', example: 'f81d4fae-7dec-11d0-a765-00a0c91e6bf6' },
+                  captchaText: { type: 'string', example: 'ab3xyz' },
+                  captchaToken: { type: 'string', example: '03AFcWeA7...' }
                 }
               }
             }
           }
         },
         responses: {
-          '200': { description: 'OTP verified' }
+          '200': {
+            description: 'Captcha verified successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    message: { type: 'string', example: 'Captcha verified successfully.' }
+                  }
+                }
+              }
+            }
+          },
+          '400': {
+            description: 'Verification failed or incorrect captcha',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: false },
+                    message: { type: 'string', example: 'Incorrect CAPTCHA answer. Please try again.' }
+                  }
+                }
+              }
+            }
+          }
         }
+      }
+    },
+    '/recaptcha/verify': {
+      post: {
+        tags: ['reCAPTCHA'],
+        summary: 'Verify Google reCAPTCHA v2 Token',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['captchaToken'],
+                properties: {
+                  captchaToken: { type: 'string', example: '03AFcWeA7...' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '200': {
+            description: 'Captcha verified successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    message: { type: 'string', example: 'Captcha verified successfully.' }
+                  }
+                }
+              }
+            }
+          },
+          '400': {
+            description: 'Verification failed or missing token',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: false },
+                    message: { type: 'string', example: 'Please complete the CAPTCHA.' }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    // ----------------------------------------------------
+    // 15. PARTICIPANTS MANAGEMENT
+    // ----------------------------------------------------
+    '/participants/register': {
+      post: {
+        tags: ['Participants'],
+        summary: 'Register a new Participant / Nomination',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name', 'phone', 'district', 'category', 'workSummary', 'contentUrl'],
+                properties: {
+                  name: { type: 'string', example: 'Ramesh Kumar' },
+                  phone: { type: 'string', example: '9876543210' },
+                  email: { type: 'string', example: 'ramesh@example.com' },
+                  district: { type: 'string', example: 'Raipur' },
+                  category: { type: 'string', example: 'Digital Empowerment' },
+                  workSummary: { type: 'string', example: 'Creating digital education content' },
+                  contentUrl: { type: 'string', example: 'https://youtube.com/watch?v=123' }
+                }
+              }
+            }
+          }
+        },
+        responses: {
+          '201': { description: 'Participant registered successfully' }
+        }
+      }
+    },
+    '/participants': {
+      get: {
+        tags: ['Participants'],
+        summary: 'Get all participants (Admin only)',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          '200': { description: 'Participants list retrieved successfully' }
+        }
+      }
+    },
+    '/participants/{id}': {
+      get: {
+        tags: ['Participants'],
+        summary: 'Get participant by ID',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'Participant details retrieved' } }
+      },
+      put: {
+        tags: ['Participants'],
+        summary: 'Update participant by ID',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'Participant updated successfully' } }
+      },
+      delete: {
+        tags: ['Participants'],
+        summary: 'Delete participant by ID',
+        security: [{ bearerAuth: [] }],
+        parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+        responses: { '200': { description: 'Participant deleted successfully' } }
       }
     }
   }

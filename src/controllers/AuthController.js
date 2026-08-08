@@ -6,7 +6,7 @@ import { setAuthCookies, clearAuthCookies } from '../utils/token.js';
 export const register = asyncHandler(async (req, res) => {
   const result = await AuthService.register(req.body);
   setAuthCookies(res, result.accessToken, result.refreshToken);
-  return ApiResponse.success(res, 'User registered successfully. Verification OTP sent.', result, 201);
+  return ApiResponse.success(res, 'User registered successfully', result, 201);
 });
 
 export const login = asyncHandler(async (req, res) => {
@@ -29,12 +29,6 @@ export const logout = asyncHandler(async (req, res) => {
   }
   clearAuthCookies(res);
   return ApiResponse.success(res, 'Logout successful', {}, 200);
-});
-
-export const verifyEmail = asyncHandler(async (req, res) => {
-  const { email, otp } = req.body;
-  const result = await AuthService.verifyEmail(email, otp);
-  return ApiResponse.success(res, result.message, {}, 200);
 });
 
 export const forgotPassword = asyncHandler(async (req, res) => {

@@ -44,9 +44,7 @@ const userSchema = new mongoose.Schema(
     portfolioUrl: { type: String, default: '' },
 
     // Verification & Status
-    isEmailVerified: { type: Boolean, default: false },
-    emailVerificationOtp: { type: String },
-    emailVerificationExpires: { type: Date },
+    isEmailVerified: { type: Boolean, default: true },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     refreshToken: { type: String },

@@ -11,21 +11,9 @@ class AuthService {
       throw new Error('An account with this email already exists');
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
-
-    logger.info(`🔑 [OTP VERIFICATION CODE] Email: ${userData.email} | OTP: ${otp}`);
-
     const user = await UserRepository.create({
       ...userData,
-      emailVerificationOtp: otp,
-      emailVerificationExpires: otpExpires
-    });
-
-    await sendEmail({
-      to: user.email,
-      subject: 'Email Verification - Chhattisgarh Creator Awards',
-      html: `<h3>Welcome ${user.name}!</h3><p>Your email verification OTP code is: <strong>${otp}</strong>. Valid for 15 minutes.</p>`
+      isEmailVerified: true
     });
 
     const accessToken = generateAccessToken({ id: user._id, role: user.role });
@@ -35,7 +23,6 @@ class AuthService {
 
     const userResponse = user.toObject();
     delete userResponse.password;
-    delete userResponse.emailVerificationOtp;
 
     return { user: userResponse, accessToken, refreshToken };
   }
@@ -89,28 +76,6 @@ class AuthService {
   async logout(userId) {
     await UserRepository.updateRefreshToken(userId, null);
     return true;
-  }
-
-  async verifyEmail(email, otp) {
-    const user = await UserRepository.findByEmail(email);
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    if (user.isEmailVerified) {
-      return { message: 'Email is already verified' };
-    }
-
-    if (user.emailVerificationOtp !== otp || new Date() > user.emailVerificationExpires) {
-      throw new Error('Invalid or expired OTP code');
-    }
-
-    user.isEmailVerified = true;
-    user.emailVerificationOtp = undefined;
-    user.emailVerificationExpires = undefined;
-    await user.save();
-
-    return { message: 'Email verified successfully' };
   }
 
   async forgotPassword(email) {

@@ -14,7 +14,8 @@ import certificateRoutes from './certificateRoutes.js';
 import dashboardRoutes from './dashboardRoutes.js';
 import reportRoutes from './reportRoutes.js';
 import contactRoutes from './contactRoutes.js';
-import otpRoutes from './otpRoutes.js';
+import recaptchaRoutes from './recaptchaRoutes.js';
+import captchaRoutes from './captchaRoutes.js';
 import participantRoutes from './participantRoutes.js';
 
 const router = express.Router();
@@ -34,7 +35,8 @@ router.use('/certificates', certificateRoutes);
 router.use('/dashboard', dashboardRoutes);
 router.use('/reports', reportRoutes);
 router.use('/contact', contactRoutes);
-router.use('/otp', otpRoutes);
+router.use('/recaptcha', recaptchaRoutes);
+router.use('/captcha', captchaRoutes);
 router.use('/participants', participantRoutes);
 
 export default router;

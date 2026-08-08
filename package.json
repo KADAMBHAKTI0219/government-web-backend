@@ -45,6 +45,7 @@
     "pdfkit": "^0.19.1",
     "qrcode": "^1.5.4",
     "slugify": "^1.6.9",
+    "svg-captcha": "^1.4.0",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^14.0.1",
     "winston": "^3.19.0"

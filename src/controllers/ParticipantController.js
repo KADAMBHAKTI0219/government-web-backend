@@ -55,3 +55,48 @@ export const getParticipants = asyncHandler(async (req, res) => {
   const participants = await Participant.find().sort('-createdAt');
   return ApiResponse.success(res, 'Participants list retrieved successfully', participants);
 });
+
+export const getParticipantById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const participant = await Participant.findById(id);
+  if (!participant) {
+    return ApiResponse.error(res, 'Participant not found', 404);
+  }
+  return ApiResponse.success(res, 'Participant details retrieved successfully', participant);
+});
+
+export const updateParticipant = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (req.body.category || req.body.categoryId) {
+    req.body.category = await resolveCategory(req.body.category || req.body.categoryId);
+  }
+
+  const participant = await Participant.findByIdAndUpdate(id, req.body, {
+    new: true,
+    runValidators: true
+  });
+
+  if (!participant) {
+    return ApiResponse.error(res, 'Participant not found', 404);
+  }
+
+  return ApiResponse.success(res, 'Participant updated successfully', participant);
+});
+
+export const deleteParticipant = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  let participant = null;
+  if (mongoose.Types.ObjectId.isValid(id)) {
+    participant = await Participant.findByIdAndDelete(id);
+  } else {
+    participant = await Participant.findOneAndDelete({ _id: id });
+  }
+
+  if (!participant) {
+    return ApiResponse.error(res, 'Participant not found or already deleted', 404);
+  }
+
+  return ApiResponse.success(res, 'Participant deleted successfully', { id: participant._id });
+});

@@ -57,6 +57,7 @@ app.get('/', (req, res) => {
 
 // Master API Routes
 app.use('/api/v1', apiRouter);
+app.use('/api', apiRouter);
 
 // Error Handling Middlewares
 app.use(notFoundHandler);
