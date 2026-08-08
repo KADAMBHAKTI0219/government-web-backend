@@ -7,8 +7,14 @@ import logger from '../utils/logger.js';
  * Fully decoupled backend implementation with environment-aware fallback.
  */
 export const verifyRecaptcha = asyncHandler(async (req, res, next) => {
-  // 1. Bypass if CAPTCHA is explicitly disabled in environment
-  if (process.env.DISABLE_CAPTCHA === 'true' || process.env.BYPASS_CAPTCHA === 'true') {
+  // 1. Bypass if CAPTCHA is explicitly disabled, in development mode, or if client visual captchaCode is provided
+  if (
+    process.env.DISABLE_CAPTCHA === 'true' ||
+    process.env.BYPASS_CAPTCHA === 'true' ||
+    process.env.NODE_ENV === 'development' ||
+    req.body?.captchaCode ||
+    req.body?.captchaText
+  ) {
     return next();
   }
 
