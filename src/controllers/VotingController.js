@@ -3,19 +3,20 @@ import { ApiResponse } from '../utils/apiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 
 export const castVote = asyncHandler(async (req, res) => {
-  const vote = await VotingService.castVote({
-    applicationId: req.body.applicationId,
+  const nominationId = req.params.nominationId || req.params.id || req.body.nominationId || req.body.applicationId;
+  const voterData = {
     voterIp: req.ip || req.headers['x-forwarded-for'] || '127.0.0.1',
     voterUserAgent: req.headers['user-agent'],
-    fingerprint: req.body.fingerprint,
-    voterUser: req.user || null,
-    voterEmail: req.body.voterEmail
-  });
+    voterEmail: req.body.voterEmail,
+    voterPhone: req.body.voterPhone,
+    voterUser: req.user ? req.user._id : null
+  };
 
-  return ApiResponse.success(res, 'Vote recorded successfully!', vote, 201);
+  const result = await VotingService.castVote(nominationId, voterData);
+  return ApiResponse.success(res, result.message, result, 201);
 });
 
-export const getVotingAnalytics = asyncHandler(async (req, res) => {
-  const analytics = await VotingService.getVotingAnalytics(req.query.category);
-  return ApiResponse.success(res, 'Voting analytics and leaderboard fetched', analytics, 200);
+export const getLeaderboard = asyncHandler(async (req, res) => {
+  const leaderboard = await VotingService.getLeaderboard(req.query.category || req.query.categoryId);
+  return ApiResponse.success(res, 'Leaderboard and vote standings retrieved', leaderboard, 200);
 });

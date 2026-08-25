@@ -7,16 +7,16 @@ class ApplicationRepository {
 
   async findById(id) {
     return await Application.findById(id)
-      .populate('creator', 'name email phone profileImage district bio socialLinks')
-      .populate('category', 'title slug tier prizeTier')
-      .populate('timeline.changedBy', 'name role')
-      .populate('notes.author', 'name role');
+      .populate({ path: 'applicant.userId', select: 'name email phone profileImage district bio socialLinks', strictPopulate: false })
+      .populate({ path: 'categories.categoryId', select: 'title slug tier prizeTier', strictPopulate: false })
+      .populate({ path: 'timeline.changedBy', select: 'name role', strictPopulate: false })
+      .populate({ path: 'notes.author', select: 'name role', strictPopulate: false });
   }
 
   async findByApplicationId(applicationId) {
     return await Application.findOne({ applicationId })
-      .populate('creator', 'name email phone district')
-      .populate('category', 'title slug');
+      .populate({ path: 'applicant.userId', select: 'name email phone district', strictPopulate: false })
+      .populate({ path: 'categories.categoryId', select: 'title slug', strictPopulate: false });
   }
 
   async updateById(id, updateData) {
@@ -31,8 +31,8 @@ class ApplicationRepository {
     const skip = (page - 1) * limit;
     const [applications, total] = await Promise.all([
       Application.find(filter)
-        .populate('creator', 'name email district profileImage')
-        .populate('category', 'title slug tier')
+        .populate({ path: 'applicant.userId', select: 'name email district profileImage', strictPopulate: false })
+        .populate({ path: 'categories.categoryId', select: 'title slug tier', strictPopulate: false })
         .sort(sort)
         .skip(skip)
         .limit(limit)

@@ -1,76 +1,139 @@
-import JuryRepository from '../repositories/JuryRepository.js';
-import ApplicationRepository from '../repositories/ApplicationRepository.js';
-import { APPLICATION_STATUS } from '../constants/applicationStatuses.js';
+import JuryAssignment from '../models/JuryAssignment.js';
+import JuryReview from '../models/JuryReview.js';
+import JuryScore from '../models/JuryScore.js';
+import Nomination from '../models/Nomination.js';
+import ActivityLog from '../models/ActivityLog.js';
+import ApplicationStatusHistory from '../models/ApplicationStatusHistory.js';
+import { APPLICATION_STATUS, APPLICATION_STAGE } from '../constants/applicationStatuses.js';
 
 class JuryService {
-  async assignJury(adminId, juryId, applicationId) {
-    const existing = await JuryRepository.findAssignment(juryId, applicationId);
-    if (existing) {
-      throw new Error('Jury is already assigned to this application');
+  /**
+   * Assign jury member to nomination
+   */
+  async assignJury(juryId, nominationId, assignedById) {
+    const nomination = await Nomination.findById(nominationId);
+    if (!nomination) throw new Error('Nomination not found');
+
+    const existingAssignment = await JuryAssignment.findOne({ jury: juryId, application: nominationId });
+    if (existingAssignment) {
+      return existingAssignment;
     }
 
-    const assignment = await JuryRepository.createAssignment({
+    const assignment = await JuryAssignment.create({
       jury: juryId,
-      application: applicationId,
-      assignedBy: adminId
+      application: nominationId,
+      assignedBy: assignedById,
+      status: 'PENDING'
     });
 
-    // Update application status to UNDER_REVIEW
-    await ApplicationRepository.updateById(applicationId, { status: APPLICATION_STATUS.UNDER_REVIEW });
+    nomination.status = APPLICATION_STATUS.JURY_REVIEW;
+    nomination.currentStage = APPLICATION_STAGE.JURY;
+    await nomination.save();
 
     return assignment;
   }
 
-  async getJuryAssignedApplications(juryId, query) {
-    const { page, limit, status } = query;
-    return await JuryRepository.findJuryAssignments(juryId, {
-      status,
-      page: parseInt(page) || 1,
-      limit: parseInt(limit) || 10
+  /**
+   * Submit jury score and review across 8 criteria
+   */
+  async submitJuryReview(juryId, nominationId, reviewData) {
+    const nomination = await Nomination.findById(nominationId);
+    if (!nomination) throw new Error('Nomination not found');
+
+    const {
+      scores = {},
+      recommendation = 'SHORTLIST',
+      remarks = ''
+    } = reviewData;
+
+    // Calculate total score out of 100
+    const totalScore = (
+      (scores.contentQuality || 0) +
+      (scores.originality || 0) +
+      (scores.creativity || 0) +
+      (scores.socialImpact || 0) +
+      (scores.audienceEngagement || 0) +
+      (scores.consistency || 0) +
+      (scores.accuracy || 0) +
+      (scores.categoryAlignment || 0)
+    );
+
+    const review = await JuryReview.findOneAndUpdate(
+      { juryId, nominationId },
+      {
+        juryId,
+        nominationId,
+        scores,
+        totalScore,
+        recommendation,
+        remarks
+      },
+      { upsert: true, new: true, runValidators: true }
+    );
+
+    // Keep legacy JuryScore model in sync for backward compatibility
+    await JuryScore.findOneAndUpdate(
+      { jury: juryId, application: nominationId },
+      {
+        jury: juryId,
+        application: nominationId,
+        scores: {
+          creativity: Math.min(25, (scores.creativity || 0) + (scores.originality || 0) / 2),
+          socialImpact: Math.min(25, (scores.socialImpact || 0) * 1.5),
+          technicalQuality: Math.min(25, (scores.contentQuality || 0)),
+          culturalRelevance: Math.min(25, (scores.categoryAlignment || 0) * 5)
+        },
+        totalScore,
+        recommendation: recommendation === 'WINNER_CANDIDATE' ? 'APPROVE' : (recommendation || 'APPROVE'),
+        remarks
+      },
+      { upsert: true }
+    );
+
+    // Update assignment status
+    await JuryAssignment.findOneAndUpdate(
+      { jury: juryId, application: nominationId },
+      { status: 'COMPLETED', completedAt: new Date() }
+    );
+
+    // Update average jury score on nomination
+    const allJuryReviews = await JuryReview.find({ nominationId });
+    const avgScore = allJuryReviews.reduce((acc, curr) => acc + curr.totalScore, 0) / (allJuryReviews.length || 1);
+
+    nomination.averageJuryScore = Math.round(avgScore * 100) / 100;
+    await nomination.save();
+
+    await ActivityLog.create({
+      user: juryId,
+      action: 'JURY_REVIEW',
+      description: `Submitted jury review for nomination ${nomination.applicationId}`
     });
+
+    return { review, averageJuryScore: nomination.averageJuryScore };
   }
 
-  async scoreApplication(juryId, applicationId, scoreData) {
-    const assignment = await JuryRepository.findAssignment(juryId, applicationId);
-    if (!assignment) {
-      throw new Error('You are not assigned to review this application');
-    }
+  /**
+   * Get assigned nominations for a jury member
+   */
+  async getAssignedNominations(juryId) {
+    const assignments = await JuryAssignment.find({ jury: juryId }).populate('application');
 
-    const { scores, recommendation, remarks } = scoreData;
-    const totalScore = scores.creativity + scores.socialImpact + scores.technicalQuality + scores.culturalRelevance;
+    const nominations = await Promise.all(
+      assignments.map(async (a) => {
+        const nom = await Nomination.findById(a.application);
+        const review = await JuryReview.findOne({ juryId, nominationId: a.application });
 
-    const juryScore = await JuryRepository.createScore({
-      jury: juryId,
-      application: applicationId,
-      scores,
-      totalScore,
-      recommendation,
-      remarks
-    });
+        return {
+          assignmentId: a._id,
+          assignmentStatus: a.status,
+          assignedAt: a.assignedAt,
+          nomination: nom,
+          myReview: review
+        };
+      })
+    );
 
-    // Mark assignment as completed
-    assignment.status = 'COMPLETED';
-    assignment.completedAt = new Date();
-    await assignment.save();
-
-    // Recalculate average score for the application
-    const allScores = await JuryRepository.findScoresByApplication(applicationId);
-    const avgScore = allScores.reduce((acc, curr) => acc + curr.totalScore, 0) / allScores.length;
-
-    await ApplicationRepository.updateById(applicationId, { averageJuryScore: avgScore });
-
-    return juryScore;
-  }
-
-  async getLeaderboard(categoryId) {
-    const filter = { status: { $in: [APPLICATION_STATUS.SHORTLISTED, APPLICATION_STATUS.APPROVED, APPLICATION_STATUS.WINNER] } };
-    if (categoryId) filter.category = categoryId;
-
-    return await ApplicationRepository.findAll({
-      filter,
-      sort: '-averageJuryScore -totalVotes',
-      limit: 20
-    });
+    return nominations;
   }
 }
 

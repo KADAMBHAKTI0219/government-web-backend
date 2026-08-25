@@ -924,6 +924,261 @@
           }
         }
       ]
+    },
+    {
+      "name": "14. Nominations & 3-Tier Verification (Awards SOP)",
+      "item": [
+        {
+          "name": "Verify reCAPTCHA Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"captchaToken\": \"03AFcWeA7...\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/recaptcha/verify",
+              "host": ["{{baseUrl}}"],
+              "path": ["recaptcha", "verify"]
+            }
+          }
+        },
+
+        {
+          "name": "Save Draft Nomination (Self / Third-Party)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nominationType\": \"SELF\",\n  \"applicant\": {\n    \"fullName\": \"Aarti Sharma\",\n    \"email\": \"aarti@example.com\",\n    \"phone\": \"9876543210\",\n    \"gender\": \"Female\",\n    \"age\": 25,\n    \"district\": \"Raipur\"\n  },\n  \"categories\": [\n    {\n      \"categoryId\": \"669be2e8f1a2b3c4d5e6f7a8\",\n      \"categoryTitle\": \"Culture & Heritage Creator\",\n      \"description\": \"Showcasing rich tribal art and festivals of Chhattisgarh.\",\n      \"storyLinks\": {\n        \"bestStoryLink1\": \"https://instagram.com/p/example1\",\n        \"bestStoryLink2\": \"https://youtube.com/watch?v=example2\"\n      }\n    }\n  ],\n  \"socialProfiles\": [\n    {\n      \"platform\": \"Instagram\",\n      \"profileUrl\": \"https://instagram.com/aartisharma\",\n      \"followers\": 55000,\n      \"isPrimary\": true\n    }\n  ],\n  \"declaration\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/nominations/draft",
+              "host": ["{{baseUrl}}"],
+              "path": ["nominations", "draft"]
+            }
+          }
+        },
+        {
+          "name": "Submit Nomination",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/nominations/:id/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["nominations", ":id", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Track Application Status (Public)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/nominations/track/NCA-2026-000001",
+              "host": ["{{baseUrl}}"],
+              "path": ["nominations", "track", "NCA-2026-000001"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Get All Nominations (Filters & Pagination)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/admin/nominations?page=1&limit=10&status=SUBMITTED&district=Raipur",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "nominations"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Eligibility Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"decision\": \"ELIGIBLE\",\n  \"remarks\": \"Verified age, state residency and category criteria.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/nominations/:id/eligibility",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "nominations", ":id", "eligibility"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Tier 1 Screening Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"followerAuthenticity\": \"HIGH\",\n  \"engagementQuality\": \"EXCELLENT\",\n  \"audienceGrowth\": \"ORGANIC\",\n  \"contentConsistency\": \"HIGH\",\n  \"accountAuthenticity\": true,\n  \"botActivity\": false,\n  \"engagementManipulation\": false,\n  \"categoryAlignment\": true,\n  \"decision\": \"PASS\",\n  \"remarks\": \"Tier 1 screening passed cleanly.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/nominations/:id/tier1",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "nominations", ":id", "tier1"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Tier 2 Content Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"adultContent\": false,\n  \"hateSpeech\": false,\n  \"misinformation\": false,\n  \"contentQuality\": 9,\n  \"originality\": 9,\n  \"educationalValue\": 8,\n  \"socialImpact\": 9,\n  \"decision\": \"PASS\",\n  \"reviewerRemarks\": \"High production quality and cultural impact.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/nominations/:id/tier2",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "nominations", ":id", "tier2"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Tier 3 Due Diligence Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"googleSearchPresence\": \"HIGH\",\n  \"mediaMentions\": true,\n  \"publicRecognition\": true,\n  \"previousControversies\": false,\n  \"riskLevel\": \"LOW\",\n  \"decision\": \"PASS\",\n  \"reviewerRemarks\": \"No adverse media or controversies found.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/nominations/:id/tier3",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "nominations", ":id", "tier3"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Brand Safety / Compliance Check",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"noAdultContent\": true,\n  \"noHateSpeech\": true,\n  \"noMisinformation\": true,\n  \"noViolence\": true,\n  \"communityGuidelinesCompliance\": true,\n  \"result\": \"BRAND_SAFE\",\n  \"remarks\": \"Cleared brand safety verification.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/nominations/:id/compliance",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "nominations", ":id", "compliance"]
+            }
+          }
+        },
+        {
+          "name": "Admin - Declare Winner",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"awardCategory\": \"Best Culture Creator\",\n  \"winnerRank\": \"1ST_PLACE\",\n  \"cashPrizeAwarded\": 50000,\n  \"juryScore\": 92.5,\n  \"publicVoteScore\": 1200,\n  \"finalScore\": 94.0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/admin/nominations/:id/winner",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "nominations", ":id", "winner"]
+            }
+          }
+        },
+        {
+          "name": "Jury - Submit 8-Criteria Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scores\": {\n    \"contentQuality\": 18,\n    \"originality\": 14,\n    \"creativity\": 14,\n    \"socialImpact\": 14,\n    \"audienceEngagement\": 13,\n    \"consistency\": 9,\n    \"accuracy\": 5,\n    \"categoryAlignment\": 5\n  },\n  \"recommendation\": \"WINNER_CANDIDATE\",\n  \"remarks\": \"Exceptional storytelling and audience connection.\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/jury/review/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["jury", "review", ":id"]
+            }
+          }
+        },
+        {
+          "name": "Public - Cast Vote",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"voterEmail\": \"voter@example.com\",\n  \"voterPhone\": \"9876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/voting/:nominationId/vote",
+              "host": ["{{baseUrl}}"],
+              "path": ["voting", ":nominationId", "vote"]
+            }
+          }
+        },
+        {
+          "name": "Download Winner Certificate PDF",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/certificates/:id/download",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", ":id", "download"]
+            }
+          }
+        },
+        {
+          "name": "Verify Certificate QR",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/certificates/verify/:certificateId",
+              "host": ["{{baseUrl}}"],
+              "path": ["certificates", "verify", ":certificateId"]
+            }
+          }
+        }
+      ]
     }
   ]
 }
+

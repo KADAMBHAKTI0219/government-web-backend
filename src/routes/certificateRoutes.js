@@ -6,13 +6,13 @@ import { ROLES } from '../constants/roles.js';
 
 const router = express.Router();
 
-// Public QR verification endpoint
+// Public Verification & Download Endpoints
+router.get('/verify/:certificateId', CertificateController.verifyCertificate);
 router.get('/verify', CertificateController.verifyCertificate);
+router.get('/:id/download', CertificateController.downloadCertificate);
+router.get('/:id', CertificateController.getCertificateById);
 
-// Protected routes
-router.use(authenticate);
-
-router.get('/my-certificates', authorize(ROLES.CREATOR, ROLES.SUPER_ADMIN, ROLES.ADMIN), CertificateController.getMyCertificates);
-router.post('/generate', authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN), CertificateController.generateCertificate);
+// Admin Certificate Generation
+router.post('/generate', authenticate, authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN), CertificateController.generateCertificate);
 
 export default router;

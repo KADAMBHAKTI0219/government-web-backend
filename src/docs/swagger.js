@@ -1465,15 +1465,77 @@ const swaggerDocument = {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['name', 'phone', 'district', 'category', 'workSummary', 'contentUrl'],
                 properties: {
+                  nominationType: { type: 'string', enum: ['SELF', 'THIRD_PARTY'], example: 'SELF' },
+                  awardType: { type: 'string', enum: ['National', 'International'], example: 'National' },
                   name: { type: 'string', example: 'Ramesh Kumar' },
+                  fullName: { type: 'string', example: 'Ramesh Kumar' },
                   phone: { type: 'string', example: '9876543210' },
                   email: { type: 'string', example: 'ramesh@example.com' },
+                  gender: { type: 'string', enum: ['Male', 'Female', 'Other'], example: 'Male' },
+                  age: { type: 'string', enum: ['18-40', 'Above 40'], example: '18-40' },
+                  state: { type: 'string', example: 'Chhattisgarh' },
                   district: { type: 'string', example: 'Raipur' },
-                  category: { type: 'string', example: 'Digital Empowerment' },
+                  nationality: { type: 'string', enum: ['Indian', 'Non-Indian'], example: 'Indian' },
+                  nominator: {
+                    type: 'object',
+                    properties: {
+                      fullName: { type: 'string', example: 'Suresh Patel' },
+                      nationality: { type: 'string', example: 'Indian' },
+                      phone: { type: 'string', example: '9123456789' },
+                      email: { type: 'string', example: 'suresh@example.com' }
+                    }
+                  },
+                  nominee: {
+                    type: 'object',
+                    properties: {
+                      fullName: { type: 'string', example: 'Ramesh Kumar' },
+                      awardType: { type: 'string', example: 'National' },
+                      phone: { type: 'string', example: '9876543210' },
+                      email: { type: 'string', example: 'ramesh@example.com' },
+                      gender: { type: 'string', example: 'Male' },
+                      age: { type: 'string', example: '18-40' },
+                      state: { type: 'string', example: 'Chhattisgarh' },
+                      district: { type: 'string', example: 'Raipur' }
+                    }
+                  },
+                  category: { type: 'string', example: 'Digital Creator Award' },
+                  categories: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        categoryId: { type: 'string', example: 'cat_01' },
+                        categoryTitle: { type: 'string', example: 'Digital Empowerment' },
+                        description: { type: 'string', example: 'Describe work done in category' },
+                        bestStoryLink1: { type: 'string', example: 'https://youtube.com/watch?v=1' },
+                        bestStoryLink2: { type: 'string', example: 'https://youtube.com/watch?v=2' },
+                        bestStoryLink3: { type: 'string', example: 'https://youtube.com/watch?v=3' }
+                      }
+                    }
+                  },
                   workSummary: { type: 'string', example: 'Creating digital education content' },
-                  contentUrl: { type: 'string', example: 'https://youtube.com/watch?v=123' }
+                  contentUrl: { type: 'string', example: 'https://youtube.com/watch?v=123' },
+                  bestStoryLink1: { type: 'string', example: 'https://youtube.com/watch?v=1' },
+                  bestStoryLink2: { type: 'string', example: 'https://youtube.com/watch?v=2' },
+                  bestStoryLink3: { type: 'string', example: 'https://youtube.com/watch?v=3' },
+                  creatorStartYear: { type: 'string', example: '2020' },
+                  primaryPlatform: {
+                    type: 'object',
+                    properties: {
+                      platform: { type: 'string', example: 'YouTube' },
+                      profileUrl: { type: 'string', example: 'https://youtube.com/@channel' },
+                      followers: { type: 'string', example: '150K' }
+                    }
+                  },
+                  secondaryPlatform: {
+                    type: 'object',
+                    properties: {
+                      platform: { type: 'string', example: 'Instagram' },
+                      profileUrl: { type: 'string', example: 'https://instagram.com/profile' },
+                      followers: { type: 'string', example: '50K' }
+                    }
+                  }
                 }
               }
             }

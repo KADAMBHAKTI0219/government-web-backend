@@ -1,13 +1,14 @@
 import express from 'express';
 import * as VotingController from '../controllers/VotingController.js';
-import { validateRequest } from '../middleware/validator.js';
 import { votingLimiter } from '../middleware/rateLimiter.js';
-import { voteValidator } from '../validators/votingValidator.js';
+import { optionalAuthenticate } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Public vote endpoint with strict rate limiting & anti-spam fingerprinting
-router.post('/cast', votingLimiter, voteValidator, validateRequest, VotingController.castVote);
-router.get('/analytics', VotingController.getVotingAnalytics);
+// Public voting endpoints
+router.post('/:nominationId/vote', votingLimiter, optionalAuthenticate, VotingController.castVote);
+router.post('/cast', votingLimiter, optionalAuthenticate, VotingController.castVote);
+router.get('/leaderboard', VotingController.getLeaderboard);
+router.get('/analytics', VotingController.getLeaderboard);
 
 export default router;

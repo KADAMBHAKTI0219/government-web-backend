@@ -2,13 +2,15 @@ import mongoose from 'mongoose';
 
 const categorySchema = new mongoose.Schema(
   {
+    categoryNumber: { type: Number, required: true },
     title: { type: String, required: true, unique: true, trim: true },
     slug: { type: String, required: true, unique: true, lowercase: true },
     tier: {
       type: String,
-      enum: ['A_CULTURE_IDENTITY', 'B_NATION_STATE_BUILDING', 'C_CRAFT_PLATFORM', 'GENERAL'],
+      required: true,
       default: 'GENERAL'
     },
+    tierNumber: { type: Number, default: 1 },
     shortDescription: { type: String, required: true },
     fullDescription: { type: String },
     taskBrief: { type: String },
@@ -33,6 +35,9 @@ const categorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+categorySchema.index({ categoryNumber: 1 });
+categorySchema.index({ tierNumber: 1 });
 
 const Category = mongoose.model('Category', categorySchema);
 export default Category;

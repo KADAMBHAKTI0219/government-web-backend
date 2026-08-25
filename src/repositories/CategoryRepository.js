@@ -21,7 +21,7 @@ class CategoryRepository {
     return await Category.findByIdAndDelete(id);
   }
 
-  async findAll({ filter = {}, sort = 'order createdAt' }) {
+  async findAll({ filter = {}, sort = { categoryNumber: 1, tierNumber: 1, order: 1 } }) {
     return await Category.find(filter).sort(sort).exec();
   }
 }

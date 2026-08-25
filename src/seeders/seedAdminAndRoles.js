@@ -57,14 +57,20 @@ export const seedDatabase = async () => {
       logger.info(`Super Admin user ${superAdminEmail} already exists.`);
     }
 
-    // 3. Seed Default Award Categories
-    const categoriesJsonPath = new URL('./categories.json', import.meta.url);
-    const sampleCategories = JSON.parse(fs.readFileSync(categoriesJsonPath, 'utf-8'));
-
-    for (const cat of sampleCategories) {
-      await Category.findOneAndUpdate({ slug: cat.slug }, cat, { upsert: true, returnDocument: 'after' });
+    // 3. Seed Default Award Categories (only if collection is empty or upsert missing)
+    const catCount = await Category.countDocuments();
+    if (catCount === 0) {
+      const categoriesJsonPath = new URL('./categories.json', import.meta.url);
+      const sampleCategories = JSON.parse(fs.readFileSync(categoriesJsonPath, 'utf-8'));
+      for (const cat of sampleCategories) {
+        await Category.findOneAndUpdate({ slug: cat.slug }, cat, { upsert: true });
+      }
+      logger.info(`${sampleCategories.length} Award Categories initialized successfully.`);
+    } else {
+      logger.info(`Award Categories already initialized (${catCount} categories present).`);
     }
-    logger.info(`${sampleCategories.length} Award Categories seeded successfully.`);
+
+
 
     // 4. Seed Default CMS Data
     const cmsDefaults = [

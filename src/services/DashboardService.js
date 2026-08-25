@@ -1,55 +1,79 @@
 import User from '../models/User.js';
-import Application from '../models/Application.js';
-import Vote from '../models/Vote.js';
+import Nomination from '../models/Nomination.js';
 import Category from '../models/Category.js';
-import { ROLES } from '../constants/roles.js';
+import Winner from '../models/Winner.js';
+import { APPLICATION_STATUS } from '../constants/applicationStatuses.js';
 
 class DashboardService {
-  async getAdminDashboardStats() {
-    const [
-      totalUsers,
-      totalCreators,
-      totalJury,
-      totalApplications,
-      applicationsByStatus,
-      applicationsByDistrict,
-      totalVotes
-    ] = await Promise.all([
-      User.countDocuments(),
-      User.countDocuments({ role: ROLES.CREATOR }),
-      User.countDocuments({ role: ROLES.JURY }),
-      Application.countDocuments(),
-      Application.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
-      Application.aggregate([{ $group: { _id: '$district', count: { $sum: 1 } } }]),
-      Vote.countDocuments()
+  async getDashboardStats() {
+    const totalUsers = await User.countDocuments({ role: 'CREATOR' });
+    const totalApplications = await Nomination.countDocuments();
+
+    const statusCounts = {
+      submitted: await Nomination.countDocuments({ status: APPLICATION_STATUS.SUBMITTED }),
+      underReview: await Nomination.countDocuments({ status: { $in: [APPLICATION_STATUS.ELIGIBILITY_REVIEW, APPLICATION_STATUS.PRELIMINARY_ASSESSMENT] } }),
+      shortlisted: await Nomination.countDocuments({ status: APPLICATION_STATUS.SHORTLISTED }),
+      tier1: await Nomination.countDocuments({ status: { $in: [APPLICATION_STATUS.TIER_1_SCREENING, APPLICATION_STATUS.TIER_1_PASSED, APPLICATION_STATUS.TIER_1_FAILED] } }),
+      tier2: await Nomination.countDocuments({ status: { $in: [APPLICATION_STATUS.TIER_2_REVIEW, APPLICATION_STATUS.TIER_2_PASSED, APPLICATION_STATUS.TIER_2_FAILED] } }),
+      tier3: await Nomination.countDocuments({ status: { $in: [APPLICATION_STATUS.TIER_3_DUE_DILIGENCE, APPLICATION_STATUS.TIER_3_PASSED, APPLICATION_STATUS.TIER_3_FAILED] } }),
+      juryReview: await Nomination.countDocuments({ status: APPLICATION_STATUS.JURY_REVIEW }),
+      winners: await Nomination.countDocuments({ status: APPLICATION_STATUS.WINNER }),
+      rejected: await Nomination.countDocuments({ status: { $in: [APPLICATION_STATUS.INELIGIBLE, APPLICATION_STATUS.NOT_SELECTED] } })
+    };
+
+    // Category Breakdown
+    const applicationsByCategory = await Nomination.aggregate([
+      { $unwind: '$categories' },
+      { $group: { _id: '$categories.categoryTitle', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // District Breakdown
+    const applicationsByDistrict = await Nomination.aggregate([
+      { $group: { _id: '$applicant.district', count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+
+    // Gender Breakdown
+    const applicationsByGender = await Nomination.aggregate([
+      { $group: { _id: '$applicant.gender', count: { $sum: 1 } } }
+    ]);
+
+    // Platform Breakdown
+    const applicationsByPlatform = await Nomination.aggregate([
+      { $unwind: '$socialProfiles' },
+      { $match: { 'socialProfiles.isPrimary': true } },
+      { $group: { _id: '$socialProfiles.platform', count: { $sum: 1 } } }
+    ]);
+
+    // Monthly Applications
+    const monthlyApplications = await Nomination.aggregate([
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { '_id.year': -1, '_id.month': -1 } }
     ]);
 
     return {
-      users: { total: totalUsers, creators: totalCreators, jury: totalJury },
-      applications: { total: totalApplications, statusBreakdown: applicationsByStatus, districtBreakdown: applicationsByDistrict },
-      votes: { total: totalVotes }
-    };
-  }
-
-  async getJuryDashboardStats(juryId) {
-    const assignments = await Application.aggregate([
-      {
-        $lookup: {
-          from: 'juryassignments',
-          localField: '_id',
-          foreignField: 'application',
-          as: 'assignment'
-        }
+      overview: {
+        totalUsers,
+        totalApplications,
+        ...statusCounts
       },
-      { $unwind: '$assignment' },
-      { $match: { 'assignment.jury': juryId } }
-    ]);
-
-    const totalAssigned = assignments.length;
-    const completedCount = assignments.filter((a) => a.assignment.status === 'COMPLETED').length;
-    const pendingCount = totalAssigned - completedCount;
-
-    return { totalAssigned, completedCount, pendingCount };
+      analytics: {
+        applicationsByCategory,
+        applicationsByDistrict,
+        applicationsByGender,
+        applicationsByPlatform,
+        monthlyApplications
+      }
+    };
   }
 }
 

@@ -47,18 +47,175 @@ async function resolveCategory(catInput) {
  * POST /api/v1/participants/register
  */
 export const registerParticipant = asyncHandler(async (req, res) => {
-  const { name, fullName, phone, email, district, category, categoryId, workSummary, contentUrl, submissionLink } = req.body;
+  const {
+    // Q1: Nomination As
+    nominationType,
+    nominationAs,
 
-  const resolvedCatId = await resolveCategory(category || categoryId);
+    // Q2 - Q9: Basic/Self Details
+    name,
+    fullName,
+    phone,
+    mobileNumber,
+    email,
+    gender,
+    age,
+    state,
+    district,
+    nationality,
+    awardType,
+    awardCategory,
+
+    // Nominator Details (If THIRD_PARTY / for Others)
+    nominator,
+    nominatorFullName,
+    nominatorNationality,
+    nominatorPhone,
+    nominatorEmail,
+
+    // Nominee Details
+    nominee,
+    nomineeName,
+    nomineeAwardType,
+    nomineePhone,
+    nomineeEmail,
+    nomineeGender,
+    nomineeAge,
+    nomineeState,
+    nomineeDistrict,
+
+    // Category / Categories
+    category,
+    categoryId,
+    categories,
+    workSummary,
+    description,
+    contentUrl,
+    submissionLink,
+    bestStoryLink1,
+    bestStoryLink2,
+    bestStoryLink3,
+
+    // Creator Profile
+    creatorStartYear,
+    whenBecomeCreator,
+
+    // Social Media Platforms
+    primaryPlatform,
+    primaryPlatformName,
+    primaryProfileUrl,
+    profileUrl,
+    primaryFollowers,
+    noOfFollowers,
+
+    secondaryPlatform,
+    secondaryPlatformName,
+    secondaryProfileUrl,
+    secondaryFollowers,
+
+    socialProfiles,
+    status
+  } = req.body;
+
+  const resolvedNominationType = (nominationType || nominationAs || 'SELF').includes('Others') ? 'THIRD_PARTY' : 'SELF';
+  const resolvedAwardType = awardType || awardCategory || 'National';
+
+  // Process category details
+  const resolvedCatId = await resolveCategory(category || categoryId || (categories && categories[0] && (categories[0].categoryId || categories[0].category)));
+
+  // Normalize Category Array (up to 3)
+  let normalizedCategories = [];
+  if (Array.isArray(categories) && categories.length > 0) {
+    normalizedCategories = await Promise.all(
+      categories.slice(0, 3).map(async (c) => ({
+        categoryId: await resolveCategory(c.categoryId || c.category),
+        categoryTitle: c.categoryTitle || c.title || '',
+        description: (c.description || c.workSummary || workSummary || '').substring(0, 2000),
+        bestStoryLink1: c.bestStoryLink1 || c.storyLink1 || c.contentUrl || contentUrl || '',
+        bestStoryLink2: c.bestStoryLink2 || c.storyLink2 || '',
+        bestStoryLink3: c.bestStoryLink3 || c.storyLink3 || ''
+      }))
+    );
+  } else {
+    normalizedCategories = [{
+      categoryId: resolvedCatId,
+      categoryTitle: '',
+      description: (description || workSummary || '').substring(0, 2000),
+      bestStoryLink1: bestStoryLink1 || contentUrl || submissionLink || '',
+      bestStoryLink2: bestStoryLink2 || '',
+      bestStoryLink3: bestStoryLink3 || ''
+    }];
+  }
+
+  // Parse Nominator object
+  const nominatorData = {
+    fullName: (nominator && nominator.fullName) || nominatorFullName || '',
+    nationality: (nominator && nominator.nationality) || nominatorNationality || 'Indian',
+    phone: (nominator && nominator.phone) || nominatorPhone || '',
+    email: (nominator && nominator.email) || nominatorEmail || ''
+  };
+
+  // Parse Nominee object
+  const nomineeData = {
+    fullName: (nominee && (nominee.fullName || nominee.name)) || nomineeName || fullName || name || '',
+    awardType: (nominee && nominee.awardType) || nomineeAwardType || resolvedAwardType,
+    phone: (nominee && nominee.phone) || nomineePhone || '',
+    email: (nominee && nominee.email) || nomineeEmail || '',
+    gender: (nominee && nominee.gender) || nomineeGender || gender || 'Other',
+    age: (nominee && nominee.age) || nomineeAge || age || '18-40',
+    state: (nominee && nominee.state) || nomineeState || state || 'Chhattisgarh',
+    district: (nominee && nominee.district) || nomineeDistrict || district || ''
+  };
+
+  // Parse Primary Platform
+  const primaryPlatformObj = primaryPlatform && typeof primaryPlatform === 'object' ? primaryPlatform : {
+    platform: primaryPlatformName || (typeof primaryPlatform === 'string' ? primaryPlatform : 'YouTube'),
+    profileUrl: primaryProfileUrl || profileUrl || '',
+    followers: primaryFollowers || noOfFollowers || '0',
+    isPrimary: true
+  };
+
+  // Parse Secondary Platform
+  const secondaryPlatformObj = secondaryPlatform && typeof secondaryPlatform === 'object' ? secondaryPlatform : {
+    platform: secondaryPlatformName || (typeof secondaryPlatform === 'string' ? secondaryPlatform : ''),
+    profileUrl: secondaryProfileUrl || '',
+    followers: secondaryFollowers || '0',
+    isPrimary: false
+  };
 
   const participantData = {
-    name: name || fullName || 'Anonymous Creator',
-    phone: phone || '9999999999',
-    email: email || '',
-    district: district || 'Raipur',
+    nominationType: resolvedNominationType,
+    awardType: resolvedAwardType,
+    name: name || fullName || nomineeData.fullName || nominatorData.fullName || 'Anonymous Creator',
+    fullName: fullName || name || nomineeData.fullName || '',
+    phone: phone || mobileNumber || nominatorData.phone || '9999999999',
+    email: email || nominatorData.email || '',
+    gender: gender || 'Other',
+    age: age || '18-40',
+    state: state || 'Chhattisgarh',
+    district: district || nomineeData.district || 'Raipur',
+    nationality: nationality || 'Indian',
+
+    nominator: nominatorData,
+    nominee: nomineeData,
+
     category: resolvedCatId || 'General',
-    workSummary: workSummary || 'Nomination submission',
-    contentUrl: contentUrl || submissionLink || 'https://youtube.com'
+    categories: normalizedCategories,
+
+    workSummary: workSummary || description || normalizedCategories[0]?.description || 'Nomination submission',
+    contentUrl: contentUrl || bestStoryLink1 || submissionLink || normalizedCategories[0]?.bestStoryLink1 || 'https://youtube.com',
+    bestStoryLink1: bestStoryLink1 || contentUrl || submissionLink || normalizedCategories[0]?.bestStoryLink1 || '',
+    bestStoryLink2: bestStoryLink2 || normalizedCategories[0]?.bestStoryLink2 || '',
+    bestStoryLink3: bestStoryLink3 || normalizedCategories[0]?.bestStoryLink3 || '',
+
+    creatorStartYear: creatorStartYear || whenBecomeCreator || '',
+    whenBecomeCreator: whenBecomeCreator || creatorStartYear || '',
+
+    primaryPlatform: primaryPlatformObj,
+    secondaryPlatform: secondaryPlatformObj,
+    socialProfiles: socialProfiles || [primaryPlatformObj, ...(secondaryPlatformObj.platform ? [secondaryPlatformObj] : [])],
+
+    status: status || 'PENDING'
   };
 
   const participant = await Participant.create(participantData);

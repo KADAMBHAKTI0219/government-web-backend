@@ -18,3 +18,21 @@
     at async file:///C:/Users/HP/Desktop/Nex%20Alliance%20Project/government-web-backend/src/controllers/AuthController.js:14:18
 [2026-08-08 11:27:18:2718] [WARN]: CAPTCHA fields missing in request. Bypassing in development mode.
 [2026-08-08 11:27:30:2730] [WARN]: CAPTCHA fields missing in request. Bypassing in development mode.
+[2026-08-25 10:31:36:3136] [ERROR]: MongoDB Connection Error: querySrv ETIMEOUT _mongodb._tcp.cluster0.cuh8yta.mongodb.net
+[2026-08-25 13:13:44:1344] [ERROR]: [POST /api/v1/auth/login] Error: Invalid email or password
+    at AuthService.login (file:///C:/Users/HP/Desktop/government-web-backend/src/services/AuthService.js:38:13)
+    at async file:///C:/Users/HP/Desktop/government-web-backend/src/controllers/AuthController.js:14:18
+[2026-08-25 13:14:03:143] [ERROR]: [POST /api/v1/auth/login] Error: Invalid email or password
+    at AuthService.login (file:///C:/Users/HP/Desktop/government-web-backend/src/services/AuthService.js:38:13)
+    at async file:///C:/Users/HP/Desktop/government-web-backend/src/controllers/AuthController.js:14:18
+[2026-08-25 13:14:08:148] [ERROR]: [GET /api/v1/applications] StrictPopulateError: Cannot populate path `creator` because it is not in your schema. Set the `strictPopulate` option to false to override.
+    at getModelsMapForPopulate (C:\Users\HP\Desktop\government-web-backend\node_modules\mongoose\lib\helpers\populate\getModelsMapForPopulate.js:55:12)
+    at _populatePath (C:\Users\HP\Desktop\government-web-backend\node_modules\mongoose\lib\model.js:4496:21)
+    at model.populate (C:\Users\HP\Desktop\government-web-backend\node_modules\mongoose\lib\model.js:4463:21)
+    at model.Query._find (C:\Users\HP\Desktop\government-web-backend\node_modules\mongoose\lib\query.js:2511:20)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async maybeTracedQueryExec (C:\Users\HP\Desktop\government-web-backend\node_modules\mongoose\lib\query.js:4801:65)
+    at async Promise.all (index 0)
+    at async ApplicationRepository.findAll (file:///C:/Users/HP/Desktop/government-web-backend/src/repositories/ApplicationRepository.js:32:35)
+    at async ApplicationService.getApplications (file:///C:/Users/HP/Desktop/government-web-backend/src/services/ApplicationService.js:170:12)
+    at async file:///C:/Users/HP/Desktop/government-web-backend/src/controllers/ApplicationController.js:47:18

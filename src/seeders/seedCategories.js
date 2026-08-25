@@ -11,28 +11,33 @@ export const seedCategories = async () => {
     await connectDB();
 
     logger.info('===============================================');
-    logger.info('Starting Category Database Seeding...');
+    logger.info('Starting Clean 39 Categories across 11 Tiers Seeding...');
     logger.info('===============================================');
+
+    // Clear old/outdated category entries from database
+    await Category.deleteMany({});
+    logger.info('Cleared old category collection completely.');
 
     const categoriesJsonPath = new URL('./categories.json', import.meta.url);
     const categoriesList = JSON.parse(fs.readFileSync(categoriesJsonPath, 'utf-8'));
 
     let insertedCount = 0;
     for (const cat of categoriesList) {
-      await Category.findOneAndUpdate(
-        { slug: cat.slug },
-        cat,
-        { upsert: true, returnDocument: 'after' }
-      );
+      await Category.create(cat);
       insertedCount++;
     }
 
-    logger.info(`Successfully seeded/updated ${insertedCount} categories in MongoDB.`);
-    logger.info('Seeding completed cleanly!');
-    process.exit(0);
+    logger.info(`Successfully seeded exactly ${insertedCount} categories across 11 tiers into MongoDB.`);
+    logger.info('Category Seeding completed cleanly!');
+    
+    if (process.argv[1] && process.argv[1].includes('seedCategories.js')) {
+      process.exit(0);
+    }
   } catch (error) {
     logger.error(`Category seeding failed: ${error.message}`);
-    process.exit(1);
+    if (process.argv[1] && process.argv[1].includes('seedCategories.js')) {
+      process.exit(1);
+    }
   }
 };
 

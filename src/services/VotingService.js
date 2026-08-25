@@ -1,53 +1,73 @@
+import Vote from '../models/Vote.js';
+import Nomination from '../models/Nomination.js';
+import Category from '../models/Category.js';
+import Settings from '../models/Settings.js';
 import crypto from 'crypto';
-import VotingRepository from '../repositories/VotingRepository.js';
-import ApplicationRepository from '../repositories/ApplicationRepository.js';
-import SettingsRepository from '../repositories/SettingsRepository.js';
 
 class VotingService {
-  async castVote({ applicationId, voterIp, voterUserAgent, fingerprint, voterUser, voterEmail }) {
-    const settings = await SettingsRepository.getSettings();
-    if (!settings.isVotingEnabled) {
-      throw new Error('Public voting is currently disabled.');
+  /**
+   * Cast a public vote for a nomination
+   */
+  async castVote(nominationId, voterData) {
+    const nomination = await Nomination.findById(nominationId);
+    if (!nomination) throw new Error('Nomination not found');
+
+    const settings = await Settings.findOne() || {};
+    if (settings.isVotingOpen === false) {
+      throw new Error('Public voting is currently closed.');
     }
 
-    const application = await ApplicationRepository.findById(applicationId);
-    if (!application) {
-      throw new Error('Application not found');
-    }
+    const { voterIp = '127.0.0.1', voterUserAgent = '', voterEmail = '', voterPhone = '', voterUser = null } = voterData;
 
-    // Generate unique voter fingerprint hash
-    const rawFingerprint = `${voterIp}-${voterUserAgent}-${fingerprint}-${voterEmail || ''}`;
-    const fingerprintHash = crypto.createHash('sha256').update(rawFingerprint).digest('hex');
+    // Create unique fingerprint based on IP + Email/Phone/UserAgent
+    const fingerprintRaw = `${voterIp}-${voterEmail}-${voterPhone}-${voterUserAgent}`;
+    const fingerprintHash = crypto.createHash('sha256').update(fingerprintRaw).digest('hex');
 
-    const existingVote = await VotingRepository.findExistingVote(applicationId, fingerprintHash);
+    // Duplicate vote check
+    const existingVote = await Vote.findOne({
+      application: nomination._id,
+      $or: [
+        { fingerprintHash },
+        ...(voterEmail ? [{ voterEmail }] : []),
+        ...(voterUser ? [{ voterUser }] : [])
+      ]
+    });
+
     if (existingVote) {
       throw new Error('You have already voted for this nomination.');
     }
 
-    const vote = await VotingRepository.createVote({
-      application: applicationId,
-      category: application.category._id,
+    const firstCatId = nomination.categories[0]?.categoryId;
+
+    const vote = await Vote.create({
+      application: nomination._id,
+      category: firstCatId || nomination._id,
       voterIp,
       voterUserAgent,
-      voterUser: voterUser ? voterUser._id : null,
+      voterUser,
       voterEmail,
       fingerprintHash
     });
 
-    // Increment total vote count on application
-    application.totalVotes += 1;
-    await application.save();
+    // Increment vote count on nomination in MongoDB
+    nomination.totalVotes += 1;
+    await nomination.save();
 
-    return vote;
+    return { success: true, message: 'Vote recorded successfully', totalVotes: nomination.totalVotes };
   }
 
-  async getVotingAnalytics(categoryId) {
-    const leaderboard = await VotingRepository.getLeaderboard(categoryId, 10);
-    const totalVotes = categoryId
-      ? await VotingRepository.countVotesByCategory(categoryId)
-      : await VotingRepository.countVotesByApplication({});
+  /**
+   * Get voting leaderboard
+   */
+  async getLeaderboard(categoryId = null) {
+    const filter = categoryId ? { 'categories.categoryId': categoryId } : {};
 
-    return { totalVotes, leaderboard };
+    const nominations = await Nomination.find(filter)
+      .select('applicationId applicant nominee categories totalVotes averageJuryScore status')
+      .sort('-totalVotes')
+      .limit(50);
+
+    return nominations;
   }
 }
 

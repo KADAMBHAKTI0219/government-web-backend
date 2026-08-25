@@ -1,18 +1,101 @@
 import mongoose from 'mongoose';
 
+const categoryItemSchema = new mongoose.Schema({
+  categoryId: { type: mongoose.Schema.Types.Mixed },
+  categoryTitle: { type: String },
+  description: { type: String, maxlength: 2000 },
+  bestStoryLink1: { type: String },
+  bestStoryLink2: { type: String, default: '' },
+  bestStoryLink3: { type: String, default: '' }
+}, { _id: false });
+
+const socialPlatformSchema = new mongoose.Schema({
+  platform: {
+    type: String,
+    enum: ['Facebook', 'Instagram', 'YouTube', 'Twitter', 'X', 'LinkedIn', 'facebook', 'instagram', 'youtube', 'twitter', 'linkedin', 'Other'],
+  },
+  profileUrl: { type: String },
+  followers: { type: mongoose.Schema.Types.Mixed }, // String or Number (e.g. 50K / 50000)
+  isPrimary: { type: Boolean, default: false }
+}, { _id: false });
+
 const participantSchema = new mongoose.Schema(
   {
+    // Q1: Nomination As - SELF (Applicant) or THIRD_PARTY (Nominator for Others)
+    nominationType: {
+      type: String,
+      enum: ['SELF', 'THIRD_PARTY', 'Applicant(Self)', 'Nominator(for Others)'],
+      default: 'SELF'
+    },
+
+    // Q3: Award Category applied for (National / International)
+    awardType: {
+      type: String,
+      enum: ['National', 'International', 'Indian', 'Non-Indian'],
+      default: 'National'
+    },
+
+    // Standard / Applicant Details
     name: { type: String, required: true },
+    fullName: { type: String },
     phone: { type: String, required: true },
     email: { type: String },
+    gender: { type: String, enum: ['Male', 'Female', 'Other'], default: 'Other' },
+    age: { type: String, default: '18-40' }, // '18-40', 'Above 40'
+    state: { type: String, default: 'Chhattisgarh' },
     district: { type: String, required: true },
-    category: { type: mongoose.Schema.Types.Mixed, required: true },
-    workSummary: { type: String, required: true },
-    contentUrl: { type: String, required: true },
-    status: { type: String, enum: ['PENDING', 'APPROVED', 'REJECTED'], default: 'PENDING' }
+    nationality: { type: String, enum: ['Indian', 'Non-Indian', 'International'], default: 'Indian' },
+
+    // If Nominator (for Others) - Details of the person nominating
+    nominator: {
+      fullName: { type: String, default: '' },
+      nationality: { type: String, enum: ['Indian', 'Non-Indian', 'International'], default: 'Indian' },
+      phone: { type: String, default: '' },
+      email: { type: String, default: '' }
+    },
+
+    // Nominee Details (Details of creator being nominated)
+    nominee: {
+      fullName: { type: String, default: '' },
+      awardType: { type: String, enum: ['National', 'International'], default: 'National' },
+      phone: { type: String, default: '' },
+      email: { type: String, default: '' },
+      gender: { type: String, enum: ['Male', 'Female', 'Other'] },
+      age: { type: String },
+      state: { type: String, default: 'Chhattisgarh' },
+      district: { type: String, default: '' }
+    },
+
+    // Category / Categories (Supports single category mixed or up to 3 category nominations)
+    category: { type: mongoose.Schema.Types.Mixed },
+    categories: [categoryItemSchema],
+
+    // Story links & Work summary (backward compatible & Excel spec)
+    workSummary: { type: String },
+    contentUrl: { type: String },
+    bestStoryLink1: { type: String },
+    bestStoryLink2: { type: String, default: '' },
+    bestStoryLink3: { type: String, default: '' },
+
+    // Creator Profile
+    creatorStartYear: { type: String, default: '' },
+    whenBecomeCreator: { type: String, default: '' },
+
+    // Social Media Platforms
+    primaryPlatform: socialPlatformSchema,
+    secondaryPlatform: socialPlatformSchema,
+    socialProfiles: [socialPlatformSchema],
+
+    // Registration Status
+    status: {
+      type: String,
+      enum: ['PENDING', 'DRAFT', 'SUBMITTED', 'APPROVED', 'REJECTED'],
+      default: 'PENDING'
+    }
   },
   { timestamps: true }
 );
 
 const Participant = mongoose.model('Participant', participantSchema);
 export default Participant;
+

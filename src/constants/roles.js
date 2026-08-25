@@ -1,6 +1,7 @@
 export const ROLES = {
   SUPER_ADMIN: 'SUPER_ADMIN',
   ADMIN: 'ADMIN',
+  REVIEWER: 'REVIEWER',
   MODERATOR: 'MODERATOR',
   JURY: 'JURY',
   CREATOR: 'CREATOR',
@@ -10,8 +11,10 @@ export const ROLES = {
 export const ROLE_HIERARCHY = {
   SUPER_ADMIN: 100,
   ADMIN: 80,
+  REVIEWER: 70,
   MODERATOR: 60,
   JURY: 40,
   CREATOR: 20,
   PUBLIC_USER: 10
 };
+
