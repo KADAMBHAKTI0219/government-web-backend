@@ -6,7 +6,9 @@ const categoryItemSchema = new mongoose.Schema({
   description: { type: String, maxlength: 2000 },
   bestStoryLink1: { type: String },
   bestStoryLink2: { type: String, default: '' },
-  bestStoryLink3: { type: String, default: '' }
+  bestStoryLink3: { type: String, default: '' },
+  district: { type: String },
+  cityId: { type: mongoose.Schema.Types.Mixed }
 }, { _id: false });
 
 const socialPlatformSchema = new mongoose.Schema({
@@ -44,6 +46,7 @@ const participantSchema = new mongoose.Schema(
     age: { type: String, default: '18-40' }, // '18-40', 'Above 40'
     state: { type: String, default: 'Chhattisgarh' },
     district: { type: String, required: true },
+    cityId: { type: mongoose.Schema.Types.Mixed }, // Selected City ID
     nationality: { type: String, enum: ['Indian', 'Non-Indian', 'International'], default: 'Indian' },
 
     // If Nominator (for Others) - Details of the person nominating
@@ -63,7 +66,8 @@ const participantSchema = new mongoose.Schema(
       gender: { type: String, enum: ['Male', 'Female', 'Other'] },
       age: { type: String },
       state: { type: String, default: 'Chhattisgarh' },
-      district: { type: String, default: '' }
+      district: { type: String, default: '' },
+      cityId: { type: mongoose.Schema.Types.Mixed }
     },
 
     // Category / Categories (Supports single category mixed or up to 3 category nominations)

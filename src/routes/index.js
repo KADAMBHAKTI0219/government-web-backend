@@ -19,6 +19,7 @@ import contactRoutes from './contactRoutes.js';
 import recaptchaRoutes from './recaptchaRoutes.js';
 import captchaRoutes from './captchaRoutes.js';
 import participantRoutes from './participantRoutes.js';
+import locationRoutes from './locationRoutes.js';
 
 const router = express.Router();
 
@@ -42,5 +43,6 @@ router.use('/contact', contactRoutes);
 router.use('/recaptcha', recaptchaRoutes);
 router.use('/captcha', captchaRoutes);
 router.use('/participants', participantRoutes);
+router.use('/locations', locationRoutes);
 
 export default router;

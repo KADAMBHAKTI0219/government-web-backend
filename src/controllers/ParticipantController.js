@@ -1,5 +1,6 @@
 import Participant from '../models/Participant.js';
 import Category from '../models/Category.js';
+import Location from '../models/Location.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
 import mongoose from 'mongoose';
@@ -62,6 +63,9 @@ export const registerParticipant = asyncHandler(async (req, res) => {
     age,
     state,
     district,
+    cityId,
+    selectedCityId,
+    districtId,
     nationality,
     awardType,
     awardCategory,
@@ -83,6 +87,7 @@ export const registerParticipant = asyncHandler(async (req, res) => {
     nomineeAge,
     nomineeState,
     nomineeDistrict,
+    nomineeCityId,
 
     // Category / Categories
     category,
@@ -119,6 +124,7 @@ export const registerParticipant = asyncHandler(async (req, res) => {
 
   const resolvedNominationType = (nominationType || nominationAs || 'SELF').includes('Others') ? 'THIRD_PARTY' : 'SELF';
   const resolvedAwardType = awardType || awardCategory || 'National';
+  const resolvedCityId = cityId || selectedCityId || districtId || (nominee && nominee.cityId) || nomineeCityId || null;
 
   // Process category details
   const resolvedCatId = await resolveCategory(category || categoryId || (categories && categories[0] && (categories[0].categoryId || categories[0].category)));
@@ -133,7 +139,9 @@ export const registerParticipant = asyncHandler(async (req, res) => {
         description: (c.description || c.workSummary || workSummary || '').substring(0, 2000),
         bestStoryLink1: c.bestStoryLink1 || c.storyLink1 || c.contentUrl || contentUrl || '',
         bestStoryLink2: c.bestStoryLink2 || c.storyLink2 || '',
-        bestStoryLink3: c.bestStoryLink3 || c.storyLink3 || ''
+        bestStoryLink3: c.bestStoryLink3 || c.storyLink3 || '',
+        district: c.district || district || 'Raipur',
+        cityId: c.cityId || resolvedCityId
       }))
     );
   } else {
@@ -143,7 +151,9 @@ export const registerParticipant = asyncHandler(async (req, res) => {
       description: (description || workSummary || '').substring(0, 2000),
       bestStoryLink1: bestStoryLink1 || contentUrl || submissionLink || '',
       bestStoryLink2: bestStoryLink2 || '',
-      bestStoryLink3: bestStoryLink3 || ''
+      bestStoryLink3: bestStoryLink3 || '',
+      district: district || 'Raipur',
+      cityId: resolvedCityId
     }];
   }
 
@@ -164,7 +174,8 @@ export const registerParticipant = asyncHandler(async (req, res) => {
     gender: (nominee && nominee.gender) || nomineeGender || gender || 'Other',
     age: (nominee && nominee.age) || nomineeAge || age || '18-40',
     state: (nominee && nominee.state) || nomineeState || state || 'Chhattisgarh',
-    district: (nominee && nominee.district) || nomineeDistrict || district || ''
+    district: (nominee && nominee.district) || nomineeDistrict || district || '',
+    cityId: (nominee && nominee.cityId) || nomineeCityId || resolvedCityId
   };
 
   // Parse Primary Platform
@@ -194,6 +205,7 @@ export const registerParticipant = asyncHandler(async (req, res) => {
     age: age || '18-40',
     state: state || 'Chhattisgarh',
     district: district || nomineeData.district || 'Raipur',
+    cityId: resolvedCityId,
     nationality: nationality || 'Indian',
 
     nominator: nominatorData,
@@ -246,32 +258,102 @@ export const registerParticipant = asyncHandler(async (req, res) => {
 });
 
 /**
+ * Helper function to populate full participant details (including category, nested categories, state and city details)
+ */
+async function formatParticipantFull(p) {
+  if (!p) return null;
+  const pObj = p.toObject ? p.toObject() : p;
+
+  // 1. Resolve main category
+  let categoryObj = null;
+  if (mongoose.Types.ObjectId.isValid(pObj.category)) {
+    categoryObj = await Category.findById(pObj.category).select('_id title slug icon tier prizeTier');
+  }
+
+  const categoryIdString = categoryObj ? categoryObj._id.toString() : (pObj.category?.toString() || '');
+  const categoryTitleString = categoryObj ? categoryObj.title : (typeof pObj.category === 'string' ? pObj.category : 'General');
+
+  // 2. Resolve categories array items
+  const populatedCategories = await Promise.all(
+    (pObj.categories || []).map(async (catItem) => {
+      let catDetails = null;
+      if (mongoose.Types.ObjectId.isValid(catItem.categoryId)) {
+        catDetails = await Category.findById(catItem.categoryId).select('_id title slug icon tier prizeTier');
+      }
+      return {
+        ...catItem,
+        categoryTitle: catDetails ? catDetails.title : (catItem.categoryTitle || 'General'),
+        categoryDetails: catDetails
+      };
+    })
+  );
+
+  // 3. Resolve State & City Details from Location model if cityId or district exists
+  let cityDetails = null;
+  let stateLocationObj = null;
+
+  if (pObj.cityId || pObj.district || pObj.state) {
+    const matchedState = await Location.findOne({
+      $or: [
+        ...(pObj.cityId ? [{ 'cities._id': pObj.cityId }] : []),
+        ...(pObj.state ? [{ stateName: new RegExp(`^${pObj.state.trim()}$`, 'i') }] : []),
+        ...(pObj.district ? [{ 'cities.cityName': new RegExp(`^${pObj.district.trim()}$`, 'i') }] : [])
+      ]
+    });
+
+    if (matchedState) {
+      stateLocationObj = {
+        _id: matchedState._id,
+        stateName: matchedState.stateName,
+        stateCode: matchedState.stateCode,
+        country: matchedState.country
+      };
+
+      const foundCity = (matchedState.cities || []).find(
+        c => (pObj.cityId && c._id.toString() === pObj.cityId.toString()) ||
+             (pObj.district && c.cityName.toLowerCase() === pObj.district.trim().toLowerCase())
+      );
+
+      if (foundCity) {
+        cityDetails = {
+          _id: foundCity._id,
+          cityName: foundCity.cityName,
+          cityCode: foundCity.cityCode
+        };
+      }
+    }
+  }
+
+  return {
+    ...pObj,
+    id: pObj._id,
+    category: categoryIdString,
+    categoryId: categoryIdString,
+    categoryTitle: categoryTitleString,
+    categoryDetails: categoryObj,
+    categories: populatedCategories.length > 0 ? populatedCategories : [{
+      categoryId: categoryIdString,
+      categoryTitle: categoryTitleString,
+      description: pObj.workSummary || pObj.description || '',
+      bestStoryLink1: pObj.bestStoryLink1 || pObj.contentUrl || '',
+      bestStoryLink2: pObj.bestStoryLink2 || '',
+      bestStoryLink3: pObj.bestStoryLink3 || '',
+      district: pObj.district,
+      cityId: pObj.cityId,
+      categoryDetails: categoryObj
+    }],
+    cityDetails,
+    stateDetails: stateLocationObj
+  };
+}
+
+/**
  * Admin route: Get all participants
  * GET /api/v1/participants
  */
 export const getParticipants = asyncHandler(async (req, res) => {
   const rawParticipants = await Participant.find().sort('-createdAt');
-
-  const participants = await Promise.all(
-    rawParticipants.map(async (p) => {
-      const pObj = p.toObject();
-      let categoryObj = null;
-      if (mongoose.Types.ObjectId.isValid(p.category)) {
-        categoryObj = await Category.findById(p.category).select('_id title slug icon');
-      }
-
-      const categoryIdString = categoryObj ? categoryObj._id.toString() : p.category?.toString();
-      const categoryTitleString = categoryObj ? categoryObj.title : (typeof p.category === 'string' ? p.category : 'General');
-
-      return {
-        ...pObj,
-        category: categoryIdString,
-        categoryId: categoryIdString,
-        categoryTitle: categoryTitleString,
-        categoryDetails: categoryObj
-      };
-    })
-  );
+  const participants = await Promise.all(rawParticipants.map(p => formatParticipantFull(p)));
 
   return res.status(200).json({
     success: true,
@@ -292,22 +374,7 @@ export const getParticipantById = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, 'Participant not found', 404);
   }
 
-  const pObj = participant.toObject();
-  let categoryObj = null;
-  if (mongoose.Types.ObjectId.isValid(participant.category)) {
-    categoryObj = await Category.findById(participant.category).select('_id title slug icon');
-  }
-
-  const categoryIdString = categoryObj ? categoryObj._id.toString() : participant.category?.toString();
-  const categoryTitleString = categoryObj ? categoryObj.title : (typeof participant.category === 'string' ? participant.category : 'General');
-
-  const responseData = {
-    ...pObj,
-    category: categoryIdString,
-    categoryId: categoryIdString,
-    categoryTitle: categoryTitleString,
-    categoryDetails: categoryObj
-  };
+  const responseData = await formatParticipantFull(participant);
 
   return res.status(200).json({
     success: true,
@@ -337,21 +404,7 @@ export const updateParticipant = asyncHandler(async (req, res) => {
     return ApiResponse.error(res, 'Participant not found', 404);
   }
 
-  let categoryObj = null;
-  if (mongoose.Types.ObjectId.isValid(participant.category)) {
-    categoryObj = await Category.findById(participant.category).select('_id title slug icon');
-  }
-
-  const categoryIdString = categoryObj ? categoryObj._id.toString() : participant.category?.toString();
-  const categoryTitleString = categoryObj ? categoryObj.title : (typeof participant.category === 'string' ? participant.category : 'General');
-
-  const responseData = {
-    ...participant.toObject(),
-    category: categoryIdString,
-    categoryId: categoryIdString,
-    categoryTitle: categoryTitleString,
-    categoryDetails: categoryObj
-  };
+  const responseData = await formatParticipantFull(participant);
 
   return res.status(200).json({
     success: true,
