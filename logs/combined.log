@@ -1769,3 +1769,24 @@
 [2026-08-25 14:30:43:3043] [INFO]: API Base URL: http://localhost:5000/api/v1
 [2026-08-25 14:30:43:3043] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
 [2026-08-25 14:30:43:3043] [INFO]: ===================================================
+[2026-08-25 14:43:23:4323] [INFO]: MongoDB Connected successfully to host: 127.0.0.1 [Database: cg_awards_db]
+[2026-08-25 14:43:23:4323] [INFO]: ===============================================
+[2026-08-25 14:43:23:4323] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-08-25 14:43:23:4323] [INFO]: ===============================================
+[2026-08-25 14:43:24:4324] [INFO]: System Roles seeded successfully.
+[2026-08-25 14:43:24:4324] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-08-25 14:43:24:4324] [INFO]: Award Categories already initialized (39 categories present).
+[2026-08-25 14:43:24:4324] [INFO]: CMS default content seeded successfully.
+[2026-08-25 14:43:24:4324] [INFO]: Portal settings initialized successfully.
+[2026-08-25 14:43:24:4324] [INFO]: Seeding completed cleanly!
+[2026-08-25 14:43:24:4324] [INFO]: ===================================================
+[2026-08-25 14:43:24:4324] [INFO]: Server running in development mode on port 5000
+[2026-08-25 14:43:24:4324] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-08-25 14:43:24:4324] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-08-25 14:43:24:4324] [INFO]: ===================================================
+[2026-08-25 18:26:45:2645] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-25 18:28:03:283] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-25 18:30:58:3058] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-26 17:01:55:155] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-26 17:02:52:252] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-26 17:07:22:722] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017

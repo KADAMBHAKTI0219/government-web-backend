@@ -7,6 +7,11 @@ const categoryItemSchema = new mongoose.Schema({
   bestStoryLink1: { type: String },
   bestStoryLink2: { type: String, default: '' },
   bestStoryLink3: { type: String, default: '' },
+  videoLink: { type: String, default: '' },
+  mainVideoLink: { type: String, default: '' },
+  reelUrl: { type: String, default: '' },
+  videoUrl: { type: String, default: '' },
+  instagramReelUrl: { type: String, default: '' },
   district: { type: String },
   cityId: { type: mongoose.Schema.Types.Mixed }
 }, { _id: false });
@@ -80,6 +85,13 @@ const participantSchema = new mongoose.Schema(
     bestStoryLink1: { type: String },
     bestStoryLink2: { type: String, default: '' },
     bestStoryLink3: { type: String, default: '' },
+
+    // Main Video Link / Instagram Reel URL fields (Admin visible & redirectable)
+    videoLink: { type: String, default: '' },
+    mainVideoLink: { type: String, default: '' },
+    reelUrl: { type: String, default: '' },
+    videoUrl: { type: String, default: '' },
+    instagramReelUrl: { type: String, default: '' },
 
     // Creator Profile
     creatorStartYear: { type: String, default: '' },

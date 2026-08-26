@@ -101,6 +101,13 @@ export const registerParticipant = asyncHandler(async (req, res) => {
     bestStoryLink2,
     bestStoryLink3,
 
+    // Video Link / Instagram Reel Link fields
+    videoLink,
+    mainVideoLink,
+    reelUrl,
+    videoUrl,
+    instagramReelUrl,
+
     // Creator Profile
     creatorStartYear,
     whenBecomeCreator,
@@ -126,6 +133,8 @@ export const registerParticipant = asyncHandler(async (req, res) => {
   const resolvedAwardType = awardType || awardCategory || 'National';
   const resolvedCityId = cityId || selectedCityId || districtId || (nominee && nominee.cityId) || nomineeCityId || null;
 
+  const resolvedVideoLink = videoLink || mainVideoLink || reelUrl || videoUrl || instagramReelUrl || contentUrl || bestStoryLink1 || '';
+
   // Process category details
   const resolvedCatId = await resolveCategory(category || categoryId || (categories && categories[0] && (categories[0].categoryId || categories[0].category)));
 
@@ -133,18 +142,27 @@ export const registerParticipant = asyncHandler(async (req, res) => {
   let normalizedCategories = [];
   if (Array.isArray(categories) && categories.length > 0) {
     normalizedCategories = await Promise.all(
-      categories.slice(0, 3).map(async (c) => ({
-        categoryId: await resolveCategory(c.categoryId || c.category),
-        categoryTitle: c.categoryTitle || c.title || '',
-        description: (c.description || c.workSummary || workSummary || '').substring(0, 2000),
-        bestStoryLink1: c.bestStoryLink1 || c.storyLink1 || c.contentUrl || contentUrl || '',
-        bestStoryLink2: c.bestStoryLink2 || c.storyLink2 || '',
-        bestStoryLink3: c.bestStoryLink3 || c.storyLink3 || '',
-        district: c.district || district || 'Raipur',
-        cityId: c.cityId || resolvedCityId
-      }))
+      categories.slice(0, 3).map(async (c) => {
+        const catVideo = c.videoLink || c.mainVideoLink || c.reelUrl || c.videoUrl || c.instagramReelUrl || c.bestStoryLink1 || c.storyLink1 || c.contentUrl || contentUrl || resolvedVideoLink || '';
+        return {
+          categoryId: await resolveCategory(c.categoryId || c.category),
+          categoryTitle: c.categoryTitle || c.title || '',
+          description: (c.description || c.workSummary || workSummary || '').substring(0, 2000),
+          bestStoryLink1: c.bestStoryLink1 || c.storyLink1 || c.contentUrl || contentUrl || '',
+          bestStoryLink2: c.bestStoryLink2 || c.storyLink2 || '',
+          bestStoryLink3: c.bestStoryLink3 || c.storyLink3 || '',
+          videoLink: catVideo,
+          mainVideoLink: catVideo,
+          reelUrl: catVideo,
+          videoUrl: catVideo,
+          instagramReelUrl: catVideo,
+          district: c.district || district || 'Raipur',
+          cityId: c.cityId || resolvedCityId
+        };
+      })
     );
   } else {
+    const defaultCatVideo = bestStoryLink1 || contentUrl || submissionLink || resolvedVideoLink || '';
     normalizedCategories = [{
       categoryId: resolvedCatId,
       categoryTitle: '',
@@ -152,6 +170,11 @@ export const registerParticipant = asyncHandler(async (req, res) => {
       bestStoryLink1: bestStoryLink1 || contentUrl || submissionLink || '',
       bestStoryLink2: bestStoryLink2 || '',
       bestStoryLink3: bestStoryLink3 || '',
+      videoLink: defaultCatVideo,
+      mainVideoLink: defaultCatVideo,
+      reelUrl: defaultCatVideo,
+      videoUrl: defaultCatVideo,
+      instagramReelUrl: defaultCatVideo,
       district: district || 'Raipur',
       cityId: resolvedCityId
     }];
@@ -220,6 +243,12 @@ export const registerParticipant = asyncHandler(async (req, res) => {
     bestStoryLink2: bestStoryLink2 || normalizedCategories[0]?.bestStoryLink2 || '',
     bestStoryLink3: bestStoryLink3 || normalizedCategories[0]?.bestStoryLink3 || '',
 
+    videoLink: resolvedVideoLink || normalizedCategories[0]?.videoLink || '',
+    mainVideoLink: resolvedVideoLink || normalizedCategories[0]?.mainVideoLink || '',
+    reelUrl: resolvedVideoLink || normalizedCategories[0]?.reelUrl || '',
+    videoUrl: resolvedVideoLink || normalizedCategories[0]?.videoUrl || '',
+    instagramReelUrl: resolvedVideoLink || normalizedCategories[0]?.instagramReelUrl || '',
+
     creatorStartYear: creatorStartYear || whenBecomeCreator || '',
     whenBecomeCreator: whenBecomeCreator || creatorStartYear || '',
 
@@ -273,6 +302,9 @@ async function formatParticipantFull(p) {
   const categoryIdString = categoryObj ? categoryObj._id.toString() : (pObj.category?.toString() || '');
   const categoryTitleString = categoryObj ? categoryObj.title : (typeof pObj.category === 'string' ? pObj.category : 'General');
 
+  // Resolved video link fallback
+  const resolvedMainVideo = pObj.mainVideoLink || pObj.videoLink || pObj.reelUrl || pObj.videoUrl || pObj.instagramReelUrl || pObj.bestStoryLink1 || pObj.contentUrl || '';
+
   // 2. Resolve categories array items
   const populatedCategories = await Promise.all(
     (pObj.categories || []).map(async (catItem) => {
@@ -280,8 +312,14 @@ async function formatParticipantFull(p) {
       if (mongoose.Types.ObjectId.isValid(catItem.categoryId)) {
         catDetails = await Category.findById(catItem.categoryId).select('_id title slug icon tier prizeTier');
       }
+      const catVideo = catItem.mainVideoLink || catItem.videoLink || catItem.reelUrl || catItem.videoUrl || catItem.instagramReelUrl || catItem.bestStoryLink1 || resolvedMainVideo;
       return {
         ...catItem,
+        videoLink: catVideo,
+        mainVideoLink: catVideo,
+        reelUrl: catVideo,
+        videoUrl: catVideo,
+        instagramReelUrl: catVideo,
         categoryTitle: catDetails ? catDetails.title : (catItem.categoryTitle || 'General'),
         categoryDetails: catDetails
       };
@@ -327,6 +365,11 @@ async function formatParticipantFull(p) {
   return {
     ...pObj,
     id: pObj._id,
+    videoLink: resolvedMainVideo,
+    mainVideoLink: resolvedMainVideo,
+    reelUrl: resolvedMainVideo,
+    videoUrl: resolvedMainVideo,
+    instagramReelUrl: resolvedMainVideo,
     category: categoryIdString,
     categoryId: categoryIdString,
     categoryTitle: categoryTitleString,
@@ -338,6 +381,11 @@ async function formatParticipantFull(p) {
       bestStoryLink1: pObj.bestStoryLink1 || pObj.contentUrl || '',
       bestStoryLink2: pObj.bestStoryLink2 || '',
       bestStoryLink3: pObj.bestStoryLink3 || '',
+      videoLink: resolvedMainVideo,
+      mainVideoLink: resolvedMainVideo,
+      reelUrl: resolvedMainVideo,
+      videoUrl: resolvedMainVideo,
+      instagramReelUrl: resolvedMainVideo,
       district: pObj.district,
       cityId: pObj.cityId,
       categoryDetails: categoryObj

@@ -10,6 +10,11 @@ const categorySubmissionSchema = new mongoose.Schema({
     bestStoryLink2: { type: String, default: '' },    // Non-mandatory Best Story Link 2
     bestStoryLink3: { type: String, default: '' }     // Non-mandatory Best Story Link 3
   },
+  videoLink: { type: String, default: '' },
+  mainVideoLink: { type: String, default: '' },
+  reelUrl: { type: String, default: '' },
+  videoUrl: { type: String, default: '' },
+  instagramReelUrl: { type: String, default: '' },
   status: { type: String, default: 'PENDING' },
   reviewRemarks: { type: String }
 }, { _id: true });
@@ -94,6 +99,13 @@ const nominationSchema = new mongoose.Schema(
 
     // Q9: Select Nomination Category (Max 1 to 3 categories)
     categories: [categorySubmissionSchema],
+
+    // Main Video Link / Instagram Reel URL fields (Admin visible & redirectable)
+    videoLink: { type: String, default: '' },
+    mainVideoLink: { type: String, default: '' },
+    reelUrl: { type: String, default: '' },
+    videoUrl: { type: String, default: '' },
+    instagramReelUrl: { type: String, default: '' },
 
     // Q10 - Q12: Creator Profile
     creatorProfile: {
