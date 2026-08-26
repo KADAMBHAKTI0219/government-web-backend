@@ -15,6 +15,7 @@ const categorySubmissionSchema = new mongoose.Schema({
   reelUrl: { type: String, default: '' },
   videoUrl: { type: String, default: '' },
   instagramReelUrl: { type: String, default: '' },
+  instagramLink: { type: String, default: '' },
   status: { type: String, default: 'PENDING' },
   reviewRemarks: { type: String }
 }, { _id: true });
@@ -106,6 +107,7 @@ const nominationSchema = new mongoose.Schema(
     reelUrl: { type: String, default: '' },
     videoUrl: { type: String, default: '' },
     instagramReelUrl: { type: String, default: '' },
+    instagramLink: { type: String, default: '' },
 
     // Q10 - Q12: Creator Profile
     creatorProfile: {

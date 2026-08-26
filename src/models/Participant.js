@@ -12,6 +12,7 @@ const categoryItemSchema = new mongoose.Schema({
   reelUrl: { type: String, default: '' },
   videoUrl: { type: String, default: '' },
   instagramReelUrl: { type: String, default: '' },
+  instagramLink: { type: String, default: '' },
   district: { type: String },
   cityId: { type: mongoose.Schema.Types.Mixed }
 }, { _id: false });
@@ -92,6 +93,7 @@ const participantSchema = new mongoose.Schema(
     reelUrl: { type: String, default: '' },
     videoUrl: { type: String, default: '' },
     instagramReelUrl: { type: String, default: '' },
+    instagramLink: { type: String, default: '' },
 
     // Creator Profile
     creatorStartYear: { type: String, default: '' },

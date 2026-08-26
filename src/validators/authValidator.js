@@ -7,7 +7,10 @@ export const registerValidator = [
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long'),
-  body('district').trim().notEmpty().withMessage('District is required')
+  body('district').trim().notEmpty().withMessage('District is required'),
+  body('instagramLink').optional({ checkFalsy: true }).trim(),
+  body('videoLink').optional({ checkFalsy: true }).trim(),
+  body('instagramReelUrl').optional({ checkFalsy: true }).trim()
 ];
 
 export const loginValidator = [

@@ -11,8 +11,13 @@ class AuthService {
       throw new Error('An account with this email already exists');
     }
 
+    const resolvedVideoLink = userData.instagramLink || userData.videoLink || userData.instagramReelUrl || userData.reelUrl || userData.videoUrl || userData.mainVideoLink || '';
+
     const user = await UserRepository.create({
       ...userData,
+      instagramLink: userData.instagramLink || resolvedVideoLink,
+      videoLink: userData.videoLink || resolvedVideoLink,
+      instagramReelUrl: userData.instagramReelUrl || resolvedVideoLink,
       isEmailVerified: true
     });
 

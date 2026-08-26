@@ -42,6 +42,9 @@ const userSchema = new mongoose.Schema(
     achievements: [achievementSchema],
     categoryPreferences: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Category' }],
     portfolioUrl: { type: String, default: '' },
+    instagramLink: { type: String, default: '' },
+    videoLink: { type: String, default: '' },
+    instagramReelUrl: { type: String, default: '' },
 
     // Verification & Status
     isEmailVerified: { type: Boolean, default: true },

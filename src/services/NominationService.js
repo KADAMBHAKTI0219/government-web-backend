@@ -66,13 +66,13 @@ class NominationService {
       throw new Error('Maximum 3 categories allowed per nomination.');
     }
 
-    const rootVideoLink = data.videoLink || data.mainVideoLink || data.reelUrl || data.videoUrl || data.instagramReelUrl || '';
+    const rootVideoLink = data.instagramLink || data.videoLink || data.mainVideoLink || data.reelUrl || data.videoUrl || data.instagramReelUrl || '';
 
     // Process category items matching Excel columns (Description max 2000 chars, Story Link 1)
     const processedCategories = await Promise.all(
       (categories || []).slice(0, 3).map(async (c) => {
         const catObj = await resolveCategoryDetails(c.categoryId || c.category);
-        const catVideo = c.videoLink || c.mainVideoLink || c.reelUrl || c.videoUrl || c.instagramReelUrl || c.storyLinks?.bestStoryLink1 || c.bestStoryLink1 || c.storyLink1 || rootVideoLink || '';
+        const catVideo = c.instagramLink || c.videoLink || c.mainVideoLink || c.reelUrl || c.videoUrl || c.instagramReelUrl || c.storyLinks?.bestStoryLink1 || c.bestStoryLink1 || c.storyLink1 || rootVideoLink || '';
         return {
           categoryId: catObj ? catObj._id : (c.categoryId || c.category || 'General'),
           categoryTitle: catObj ? catObj.title : (c.categoryTitle || 'General'),
@@ -87,6 +87,7 @@ class NominationService {
           reelUrl: catVideo,
           videoUrl: catVideo,
           instagramReelUrl: catVideo,
+          instagramLink: catVideo,
           status: 'DRAFT',
           reviewRemarks: ''
         };
@@ -159,6 +160,7 @@ class NominationService {
       nomination.reelUrl = resolvedVideoLink;
       nomination.videoUrl = resolvedVideoLink;
       nomination.instagramReelUrl = resolvedVideoLink;
+      nomination.instagramLink = resolvedVideoLink;
       nomination.creatorProfile = creatorProfileData;
       nomination.socialProfiles = socialProfiles;
       nomination.declaration = declaration;
@@ -178,6 +180,7 @@ class NominationService {
         reelUrl: resolvedVideoLink,
         videoUrl: resolvedVideoLink,
         instagramReelUrl: resolvedVideoLink,
+        instagramLink: resolvedVideoLink,
         creatorProfile: creatorProfileData,
         socialProfiles,
         declaration,
