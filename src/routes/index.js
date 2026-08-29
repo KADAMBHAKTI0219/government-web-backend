@@ -20,6 +20,7 @@ import recaptchaRoutes from './recaptchaRoutes.js';
 import captchaRoutes from './captchaRoutes.js';
 import participantRoutes from './participantRoutes.js';
 import locationRoutes from './locationRoutes.js';
+import winnerRoutes from './winnerRoutes.js';
 
 const router = express.Router();
 
@@ -44,5 +45,6 @@ router.use('/recaptcha', recaptchaRoutes);
 router.use('/captcha', captchaRoutes);
 router.use('/participants', participantRoutes);
 router.use('/locations', locationRoutes);
+router.use('/winners', winnerRoutes);
 
 export default router;

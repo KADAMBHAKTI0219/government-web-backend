@@ -42,3 +42,4 @@
 [2026-08-26 17:01:55:155] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
 [2026-08-26 17:02:52:252] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
 [2026-08-26 17:07:22:722] [ERROR]: MongoDB Connection Error: connect ECONNREFUSED 127.0.0.1:27017
+[2026-08-29 10:11:06:116] [WARN]: Cloudinary credentials not configured. Using local uploads directory fallback.

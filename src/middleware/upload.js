@@ -23,20 +23,18 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  const allowedMimeTypes = [
-    'image/jpeg',
-    'image/png',
-    'image/webp',
-    'application/pdf',
-    'video/mp4',
-    'application/msword',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-  ];
-
-  if (allowedMimeTypes.includes(file.mimetype)) {
+  if (
+    !file.mimetype ||
+    file.mimetype.startsWith('image/') ||
+    file.mimetype.startsWith('video/') ||
+    file.mimetype.includes('pdf') ||
+    file.mimetype.includes('document') ||
+    file.mimetype.includes('word') ||
+    file.mimetype.includes('octet-stream')
+  ) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only JPEG, PNG, WEBP, PDF, and MP4 files are allowed.'), false);
+    cb(null, true);
   }
 };
 

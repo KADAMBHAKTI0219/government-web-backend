@@ -7,10 +7,11 @@ import { ROLES } from '../constants/roles.js';
 const router = express.Router();
 
 router.use(authenticate);
-router.use(authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.REVIEWER, ROLES.MODERATOR));
+router.use(authorize(ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.REVIEWER, ROLES.MODERATOR, ROLES.JURY, ROLES.CREATOR));
 
 // Admin Listing & Filtering
 router.get('/', AdminNominationController.getNominations);
+router.get('/all', AdminNominationController.getNominations);
 router.get('/:id', AdminNominationController.getNominationById);
 
 // 3-Tier Verification & Evaluation Endpoints

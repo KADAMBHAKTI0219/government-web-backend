@@ -1,13 +1,15 @@
 import { body } from 'express-validator';
 
 export const registerValidator = [
-  body('name').trim().notEmpty().withMessage('Full name is required'),
   body('email').trim().isEmail().withMessage('Valid email address is required'),
-  body('phone').trim().notEmpty().withMessage('Phone number is required'),
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long'),
-  body('district').trim().notEmpty().withMessage('District is required'),
+  body('name').optional().trim(),
+  body('fullName').optional().trim(),
+  body('phone').optional().trim(),
+  body('mobileNumber').optional().trim(),
+  body('district').optional().trim(),
   body('instagramLink').optional({ checkFalsy: true }).trim(),
   body('videoLink').optional({ checkFalsy: true }).trim(),
   body('instagramReelUrl').optional({ checkFalsy: true }).trim()

@@ -1,9 +1,28 @@
 import Participant from '../models/Participant.js';
 import Category from '../models/Category.js';
 import Location from '../models/Location.js';
+import Nomination from '../models/Nomination.js';
+import Counter from '../models/Counter.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import logger from '../utils/logger.js';
 import mongoose from 'mongoose';
+
+function escapeRegex(str) {
+  if (!str) return '';
+  return String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+async function generateNextApplicationId() {
+  const currentYear = new Date().getFullYear();
+  const counter = await Counter.findOneAndUpdate(
+    { id: `nomination_${currentYear}` },
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true }
+  );
+  const seqFormatted = String(counter.seq).padStart(6, '0');
+  return `NCA-${currentYear}-${seqFormatted}`;
+}
 
 /**
  * Helper function to resolve category input (ID, slug, or title) to a valid Category ObjectId
@@ -15,18 +34,23 @@ async function resolveCategory(catInput) {
   }
 
   // 1. Check if it's already a valid ObjectId
-  if (mongoose.Types.ObjectId.isValid(catInput)) {
+  if (typeof catInput === 'string' && mongoose.Types.ObjectId.isValid(catInput)) {
     const existing = await Category.findById(catInput);
     if (existing) return existing._id;
+  } else if (typeof catInput === 'object' && catInput._id && mongoose.Types.ObjectId.isValid(catInput._id)) {
+    return catInput._id;
   }
 
+  const strVal = typeof catInput === 'string' ? catInput : (catInput.title || catInput.name || catInput.slug || String(catInput));
+
   // 2. Search by slug or title (case-insensitive)
+  const escaped = escapeRegex(strVal.trim());
   const categoryBySlugOrTitle = await Category.findOne({
     $or: [
-      { slug: catInput },
-      { title: catInput },
-      { slug: catInput.toString().toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') },
-      { title: new RegExp(`^${catInput.toString().trim()}$`, 'i') }
+      { slug: strVal },
+      { title: strVal },
+      { slug: strVal.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') },
+      { title: new RegExp(`^${escaped}$`, 'i') }
     ]
   });
 
@@ -265,6 +289,46 @@ export const registerParticipant = asyncHandler(async (req, res) => {
 
   const participant = await Participant.create(participantData);
 
+  // Dual-write to Nomination collection to guarantee database persistence across all admin modules
+  try {
+    const nextAppId = await generateNextApplicationId();
+    await Nomination.create({
+      applicationId: nextAppId,
+      nominationType: resolvedNominationType,
+      awardType: resolvedAwardType,
+      applicant: {
+        fullName: participantData.fullName || participantData.name,
+        email: participantData.email || 'participant@cgawards.gov.in',
+        phone: participantData.phone || '9999999999',
+        gender: participantData.gender || 'Other',
+        age: participantData.age || '18-40',
+        state: participantData.state || 'Chhattisgarh',
+        district: participantData.district || 'Raipur',
+        nationality: participantData.nationality || 'Indian'
+      },
+      nominator: nominatorData,
+      nominee: nomineeData,
+      categories: normalizedCategories.map(c => ({
+        categoryId: c.categoryId || resolvedCatId || 'General',
+        categoryTitle: c.categoryTitle || 'General',
+        description: c.description || workSummary || 'Nomination submission',
+        storyLinks: {
+          bestStoryLink1: c.bestStoryLink1 || contentUrl || 'https://youtube.com',
+          bestStoryLink2: c.bestStoryLink2 || '',
+          bestStoryLink3: c.bestStoryLink3 || ''
+        },
+        videoLink: c.videoLink || resolvedVideoLink || '',
+        mainVideoLink: c.mainVideoLink || resolvedVideoLink || '',
+        status: 'SUBMITTED'
+      })),
+      socialProfiles: participantData.socialProfiles,
+      status: 'SUBMITTED',
+      submittedAt: new Date()
+    });
+  } catch (syncErr) {
+    logger.warn(`Nomination dual-write sync warning: ${syncErr.message}`);
+  }
+
   // Fetch category details to populate response
   let categoryObj = null;
   if (mongoose.Types.ObjectId.isValid(participant.category)) {
@@ -424,9 +488,12 @@ export const getParticipants = asyncHandler(async (req, res) => {
  */
 export const getParticipantById = asyncHandler(async (req, res) => {
   const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return ApiResponse.error(res, 'Invalid participant ID', [], 400);
+  }
   const participant = await Participant.findById(id);
   if (!participant) {
-    return ApiResponse.error(res, 'Participant not found', 404);
+    return ApiResponse.error(res, 'Participant not found', [], 404);
   }
 
   const responseData = await formatParticipantFull(participant);

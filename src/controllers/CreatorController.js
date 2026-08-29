@@ -1,6 +1,7 @@
 import CreatorService from '../services/CreatorService.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 
 export const updateSocialLinks = asyncHandler(async (req, res) => {
   const updated = await CreatorService.updateSocialLinks(req.user._id, req.body.socialLinks);
@@ -13,7 +14,10 @@ export const updateAchievements = asyncHandler(async (req, res) => {
 });
 
 export const uploadPortfolio = asyncHandler(async (req, res) => {
-  const portfolioUrl = req.file ? `/uploads/${req.file.filename}` : req.body.portfolioUrl;
+  let portfolioUrl = req.body.portfolioUrl;
+  if (req.file) {
+    portfolioUrl = await uploadToCloudinary(req.file, 'portfolios');
+  }
   const updated = await CreatorService.uploadPortfolio(req.user._id, portfolioUrl);
   return ApiResponse.success(res, 'Portfolio updated successfully', updated, 200);
 });

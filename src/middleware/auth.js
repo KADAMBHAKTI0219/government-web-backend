@@ -2,6 +2,7 @@ import { verifyAccessToken } from '../utils/token.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 import User from '../models/User.js';
 import Admin from '../models/Admin.js';
+import Participant from '../models/Participant.js';
 
 export const authenticate = async (req, res, next) => {
   try {
@@ -23,6 +24,26 @@ export const authenticate = async (req, res, next) => {
     if (!user) {
       // Fallback check Admin collection
       user = await Admin.findById(decoded.id).select('-password');
+    }
+
+    if (!user) {
+      // Fallback check Participant collection
+      const part = await Participant.findById(decoded.id);
+      if (part) {
+        user = {
+          _id: part._id,
+          id: part._id,
+          name: part.name || part.fullName,
+          fullName: part.fullName || part.name,
+          email: part.email || '',
+          phone: part.phone || '',
+          role: 'CREATOR',
+          district: part.district || 'Raipur',
+          state: part.state || 'Chhattisgarh',
+          isActive: part.status !== 'REJECTED',
+          isProfileComplete: true
+        };
+      }
     }
 
     if (!user) {
@@ -57,6 +78,24 @@ export const optionalAuthenticate = async (req, res, next) => {
       let user = await User.findById(decoded.id).select('-password');
       if (!user) {
         user = await Admin.findById(decoded.id).select('-password');
+      }
+      if (!user) {
+        const part = await Participant.findById(decoded.id);
+        if (part) {
+          user = {
+            _id: part._id,
+            id: part._id,
+            name: part.name || part.fullName,
+            fullName: part.fullName || part.name,
+            email: part.email || '',
+            phone: part.phone || '',
+            role: 'CREATOR',
+            district: part.district || 'Raipur',
+            state: part.state || 'Chhattisgarh',
+            isActive: part.status !== 'REJECTED',
+            isProfileComplete: true
+          };
+        }
       }
       if (user) {
         req.user = user;

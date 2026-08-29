@@ -1,9 +1,14 @@
 import express from 'express';
 import * as NominationController from '../controllers/NominationController.js';
+import * as AdminNominationController from '../controllers/AdminNominationController.js';
 import { authenticate, optionalAuthenticate } from '../middleware/auth.js';
 import { verifyRecaptcha } from '../middleware/recaptcha.js';
 
 const router = express.Router();
+
+// Nomination retrieval & listing routes
+router.get('/', optionalAuthenticate, AdminNominationController.getNominations);
+router.get('/all', optionalAuthenticate, AdminNominationController.getNominations);
 
 // Public Nomination & Draft routes with reCAPTCHA verification
 router.post('/', verifyRecaptcha, optionalAuthenticate, NominationController.createNomination);

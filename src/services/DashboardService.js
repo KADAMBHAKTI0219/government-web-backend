@@ -1,13 +1,18 @@
 import User from '../models/User.js';
 import Nomination from '../models/Nomination.js';
+import Participant from '../models/Participant.js';
 import Category from '../models/Category.js';
 import Winner from '../models/Winner.js';
 import { APPLICATION_STATUS } from '../constants/applicationStatuses.js';
 
 class DashboardService {
   async getDashboardStats() {
-    const totalUsers = await User.countDocuments({ role: 'CREATOR' });
-    const totalApplications = await Nomination.countDocuments();
+    const userCount = await User.countDocuments({ role: { $ne: 'SUPER_ADMIN' } });
+    const participantCount = await Participant.countDocuments();
+    const nominationCount = await Nomination.countDocuments();
+
+    const totalUsers = userCount + participantCount;
+    const totalApplications = nominationCount + participantCount;
 
     const statusCounts = {
       submitted: await Nomination.countDocuments({ status: APPLICATION_STATUS.SUBMITTED }),

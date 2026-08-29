@@ -1,25 +1,52 @@
 import crypto from 'crypto';
 import UserRepository from '../repositories/UserRepository.js';
+import Participant from '../models/Participant.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/token.js';
 import { sendEmail } from '../config/mail.js';
 import logger from '../utils/logger.js';
 
 class AuthService {
   async register(userData) {
-    const existingUser = await UserRepository.findByEmail(userData.email);
+    const email = (userData.email || '').toLowerCase().trim();
+    const existingUser = await UserRepository.findByEmail(email);
     if (existingUser) {
       throw new Error('An account with this email already exists');
     }
 
+    const resolvedName = userData.name || userData.fullName || email.split('@')[0] || 'User';
+    const resolvedPhone = userData.phone || userData.mobileNumber || userData.mobile || '9999999999';
+    const resolvedDistrict = userData.district || 'Raipur';
     const resolvedVideoLink = userData.instagramLink || userData.videoLink || userData.instagramReelUrl || userData.reelUrl || userData.videoUrl || userData.mainVideoLink || '';
 
     const user = await UserRepository.create({
       ...userData,
+      name: resolvedName,
+      fullName: resolvedName,
+      email,
+      phone: resolvedPhone,
+      district: resolvedDistrict,
+      role: userData.role || 'CREATOR',
       instagramLink: userData.instagramLink || resolvedVideoLink,
       videoLink: userData.videoLink || resolvedVideoLink,
       instagramReelUrl: userData.instagramReelUrl || resolvedVideoLink,
-      isEmailVerified: true
+      isEmailVerified: true,
+      isProfileComplete: true
     });
+
+    // Dual-write to Participant collection
+    try {
+      await Participant.create({
+        name: resolvedName,
+        fullName: resolvedName,
+        email,
+        phone: resolvedPhone,
+        district: resolvedDistrict,
+        state: userData.state || 'Chhattisgarh',
+        status: 'PENDING'
+      });
+    } catch (e) {
+      logger.warn(`Participant dual-write warning: ${e.message}`);
+    }
 
     const accessToken = generateAccessToken({ id: user._id, role: user.role });
     const refreshToken = generateRefreshToken({ id: user._id });

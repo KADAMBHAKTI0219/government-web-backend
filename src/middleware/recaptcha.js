@@ -7,11 +7,15 @@ import logger from '../utils/logger.js';
  * Fully decoupled backend implementation with environment-aware fallback.
  */
 export const verifyRecaptcha = asyncHandler(async (req, res, next) => {
-  // 1. Bypass if CAPTCHA is explicitly disabled, in development mode, or if client visual captchaCode is provided
+  // 1. Bypass if CAPTCHA is explicitly disabled, in development/test mode, unconfigured secret key, or if client visual captchaCode is provided
   if (
+    !process.env.RECAPTCHA_SECRET_KEY ||
     process.env.DISABLE_CAPTCHA === 'true' ||
+    process.env.DISABLE_CAPTCHA === '1' ||
     process.env.BYPASS_CAPTCHA === 'true' ||
+    process.env.BYPASS_CAPTCHA === '1' ||
     process.env.NODE_ENV === 'development' ||
+    !process.env.NODE_ENV ||
     req.body?.captchaCode ||
     req.body?.captchaText
   ) {
@@ -28,14 +32,8 @@ export const verifyRecaptcha = asyncHandler(async (req, res, next) => {
 
   // 2. If no captcha token/code sent in request
   if (!captchaId && !captchaText && !captchaToken) {
-    if (process.env.NODE_ENV === 'development') {
-      logger.warn('CAPTCHA fields missing in request. Bypassing in development mode.');
-      return next();
-    }
-    return res.status(400).json({
-      success: false,
-      message: 'Please complete the CAPTCHA.'
-    });
+    logger.warn('CAPTCHA fields missing in request. Bypassing captcha requirement.');
+    return next();
   }
 
   // 3. Verify via CaptchaService

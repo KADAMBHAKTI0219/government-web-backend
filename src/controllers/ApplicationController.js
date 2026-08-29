@@ -1,6 +1,7 @@
 import ApplicationService from '../services/ApplicationService.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import { uploadToCloudinary } from '../utils/cloudinaryUpload.js';
 
 export const createApplication = asyncHandler(async (req, res) => {
   const application = await ApplicationService.createApplication(req.user._id, req.body);
@@ -26,8 +27,9 @@ export const uploadMedia = asyncHandler(async (req, res) => {
   if (!req.file) {
     return ApiResponse.error(res, 'No media file provided', [], 400);
   }
+  const fileUrl = await uploadToCloudinary(req.file, 'applications');
   const fileData = {
-    fileUrl: `/uploads/${req.file.filename}`,
+    fileUrl,
     fileType: req.body.fileType || 'document',
     fileName: req.file.originalname,
     fileSize: req.file.size
