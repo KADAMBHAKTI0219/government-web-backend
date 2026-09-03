@@ -38,6 +38,9 @@ const categorySchema = new mongoose.Schema(
 
 categorySchema.index({ categoryNumber: 1 });
 categorySchema.index({ tierNumber: 1 });
+categorySchema.index({ isActive: 1, categoryNumber: 1, tierNumber: 1, order: 1 });
+categorySchema.index({ slug: 1 });
 
 const Category = mongoose.model('Category', categorySchema);
 export default Category;
+
