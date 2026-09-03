@@ -1,37 +1,259 @@
 import Location from '../models/Location.js';
 import { ApiResponse } from '../utils/apiResponse.js';
 import { asyncHandler } from '../utils/asyncHandler.js';
+import mongoose from 'mongoose';
+
+// Default initial dataset for auto-seeding or fallback
+export const DEFAULT_LOCATIONS_DATA = [
+  {
+    stateName: 'Chhattisgarh',
+    stateCode: 'CG',
+    country: 'India',
+    cities: [
+      'Raipur', 'Balod', 'Baloda Bazar', 'Balrampur', 'Bastar', 'Bemetara', 'Bijapur',
+      'Bilaspur', 'Dantewada', 'Dhamtari', 'Durg', 'Gariaband', 'Gaurela-Pendra-Marwahi',
+      'Janjgir-Champa', 'Jashpur', 'Kabirdham (Kawardha)', 'Kanker',
+      'Khairagarh-Chhuikhadan-Gandai', 'Kondagaon', 'Korba', 'Koriya', 'Mahasamund',
+      'Manendragarh-Chirmiri-Bharatpur', 'Mohla-Manpur-Ambagarh Chowki', 'Mungeli',
+      'Narayanpur', 'Raigarh', 'Rajnandgaon', 'Sukma', 'Surajpur', 'Surguja', 'Sarangarh-Bilaigarh'
+    ].map(name => ({ cityName: name }))
+  },
+  {
+    stateName: 'Delhi',
+    stateCode: 'DL',
+    country: 'India',
+    cities: ['Central Delhi', 'East Delhi', 'New Delhi', 'North Delhi', 'South Delhi', 'West Delhi'].map(name => ({ cityName: name }))
+  },
+  {
+    stateName: 'Maharashtra',
+    stateCode: 'MH',
+    country: 'India',
+    cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane', 'Aurangabad', 'Solapur', 'Amravati'].map(name => ({ cityName: name }))
+  },
+  {
+    stateName: 'Uttar Pradesh',
+    stateCode: 'UP',
+    country: 'India',
+    cities: ['Lucknow', 'Kanpur', 'Varanasi', 'Agra', 'Noida', 'Ghaziabad', 'Prayagraj', 'Gorakhpur'].map(name => ({ cityName: name }))
+  },
+  {
+    stateName: 'Madhya Pradesh',
+    stateCode: 'MP',
+    country: 'India',
+    cities: ['Bhopal', 'Indore', 'Gwalior', 'Jabalpur', 'Ujjain', 'Sagar', 'Satna'].map(name => ({ cityName: name }))
+  }
+];
+
+// Internal helper to auto seed default data if collection is empty
+async function ensureLocationsSeeded() {
+  const count = await Location.countDocuments();
+  if (count === 0) {
+    for (const item of DEFAULT_LOCATIONS_DATA) {
+      await Location.create(item);
+    }
+  }
+}
 
 /**
-  * Public Route: GET /api/v1/locations
-  * Get all active states with active nested cities for public category/participate forms
-  */
+ * Public Route: GET /api/v1/locations & GET /api/v1/locations/public
+ * Get all active states with active nested cities and districts list
+ */
 export const getPublicLocations = asyncHandler(async (req, res) => {
+  await ensureLocationsSeeded();
+
+  const { state, search } = req.query;
+  let query = { isActive: true };
+
+  if (state) {
+    query.$or = [
+      { stateName: { $regex: state, $options: 'i' } },
+      { stateCode: { $regex: state, $options: 'i' } }
+    ];
+  }
+
+  const locations = await Location.find(query)
+    .select('stateName stateCode country cities isActive')
+    .sort({ stateName: 1 });
+
+  const formattedLocations = locations.map(loc => {
+    let citiesFiltered = (loc.cities || []).filter(c => c.isActive !== false);
+
+    if (search) {
+      const searchRegex = new RegExp(search, 'i');
+      citiesFiltered = citiesFiltered.filter(c => searchRegex.test(c.cityName));
+    }
+
+    const cityList = citiesFiltered.map(c => ({
+      _id: c._id,
+      cityName: c.cityName,
+      districtName: c.cityName, // District alias
+      cityCode: c.cityCode || ''
+    }));
+
+    return {
+      _id: loc._id,
+      stateName: loc.stateName,
+      stateCode: loc.stateCode,
+      country: loc.country,
+      cities: cityList,
+      districts: cityList // District array alias
+    };
+  });
+
+  return ApiResponse.success(res, 'Public states, cities and districts list retrieved', formattedLocations);
+});
+
+/**
+ * Public Route: GET /api/v1/locations/states
+ * Get list of active state names and metadata
+ */
+export const getStates = asyncHandler(async (req, res) => {
+  await ensureLocationsSeeded();
+
   const locations = await Location.find({ isActive: true })
     .select('stateName stateCode country cities isActive')
     .sort({ stateName: 1 });
 
-  const formattedLocations = locations.map(loc => ({
+  const statesList = locations.map(loc => ({
     _id: loc._id,
     stateName: loc.stateName,
     stateCode: loc.stateCode,
     country: loc.country,
-    cities: (loc.cities || [])
-      .filter(c => c.isActive !== false)
-      .map(c => ({
-        _id: c._id,
-        cityName: c.cityName,
-        cityCode: c.cityCode
-      }))
+    totalCities: (loc.cities || []).length
   }));
 
-  return ApiResponse.success(res, 'Public states and nested cities list retrieved', formattedLocations);
+  return ApiResponse.success(res, 'States list retrieved successfully', statesList);
 });
 
 /**
-  * Admin Route: GET /api/v1/locations/admin
-  * Get all states with nested cities list for Admin Dashboard management
-  */
+ * Public Route: GET /api/v1/locations/cities & GET /api/v1/locations/districts
+ * Get flattened or state-filtered list of active cities/districts
+ */
+export const getCitiesOrDistricts = asyncHandler(async (req, res) => {
+  await ensureLocationsSeeded();
+
+  const { state, stateCode, stateId, search } = req.query;
+  let query = { isActive: true };
+
+  if (stateId && mongoose.Types.ObjectId.isValid(stateId)) {
+    query._id = stateId;
+  } else if (state || stateCode) {
+    const targetState = state || stateCode;
+    query.$or = [
+      { stateName: { $regex: targetState, $options: 'i' } },
+      { stateCode: { $regex: targetState, $options: 'i' } }
+    ];
+  }
+
+  const locations = await Location.find(query).sort({ stateName: 1 });
+
+  let allCities = [];
+  locations.forEach(loc => {
+    (loc.cities || [])
+      .filter(c => c.isActive !== false)
+      .forEach(c => {
+        if (!search || new RegExp(search, 'i').test(c.cityName)) {
+          allCities.push({
+            _id: c._id,
+            cityName: c.cityName,
+            districtName: c.cityName, // District alias
+            cityCode: c.cityCode || '',
+            stateId: loc._id,
+            stateName: loc.stateName,
+            stateCode: loc.stateCode
+          });
+        }
+      });
+  });
+
+  return ApiResponse.success(res, 'Cities and districts list retrieved successfully', allCities);
+});
+
+/**
+ * Public Route: GET /api/v1/locations/chhattisgarh
+ * Fast dedicated route for Chhattisgarh state and all 33 districts
+ */
+export const getChhattisgarhLocations = asyncHandler(async (req, res) => {
+  await ensureLocationsSeeded();
+
+  let cgLocation = await Location.findOne({
+    $or: [{ stateName: /^Chhattisgarh$/i }, { stateCode: /^CG$/i }]
+  });
+
+  if (!cgLocation) {
+    const defaultCg = DEFAULT_LOCATIONS_DATA.find(d => d.stateCode === 'CG');
+    cgLocation = await Location.create(defaultCg);
+  }
+
+  const districts = (cgLocation.cities || [])
+    .filter(c => c.isActive !== false)
+    .map(c => ({
+      _id: c._id,
+      cityName: c.cityName,
+      districtName: c.cityName,
+      cityCode: c.cityCode || ''
+    }));
+
+  return ApiResponse.success(res, 'Chhattisgarh state and districts retrieved successfully', {
+    _id: cgLocation._id,
+    stateName: cgLocation.stateName,
+    stateCode: cgLocation.stateCode,
+    country: cgLocation.country,
+    districts,
+    cities: districts
+  });
+});
+
+/**
+ * Public Route: GET /api/v1/locations/:idOrName
+ * Get single state location by ObjectId, stateName, or stateCode
+ */
+export const getLocationByIdOrName = asyncHandler(async (req, res) => {
+  await ensureLocationsSeeded();
+  const { idOrName } = req.params;
+
+  let location;
+  if (mongoose.Types.ObjectId.isValid(idOrName)) {
+    location = await Location.findById(idOrName);
+  }
+
+  if (!location) {
+    location = await Location.findOne({
+      $or: [
+        { stateName: { $regex: `^${idOrName}$`, $options: 'i' } },
+        { stateCode: { $regex: `^${idOrName}$`, $options: 'i' } }
+      ]
+    });
+  }
+
+  if (!location) {
+    return ApiResponse.error(res, `Location '${idOrName}' not found`, 404);
+  }
+
+  const cityList = (location.cities || [])
+    .filter(c => c.isActive !== false)
+    .map(c => ({
+      _id: c._id,
+      cityName: c.cityName,
+      districtName: c.cityName,
+      cityCode: c.cityCode || ''
+    }));
+
+  return ApiResponse.success(res, 'Location retrieved successfully', {
+    _id: location._id,
+    stateName: location.stateName,
+    stateCode: location.stateCode,
+    country: location.country,
+    cities: cityList,
+    districts: cityList,
+    isActive: location.isActive
+  });
+});
+
+/**
+ * Admin Route: GET /api/v1/locations/admin
+ * Get all states with nested cities list for Admin Dashboard management
+ */
 export const getAllLocationsAdmin = asyncHandler(async (req, res) => {
   const { search } = req.query;
   let query = {};
@@ -48,9 +270,9 @@ export const getAllLocationsAdmin = asyncHandler(async (req, res) => {
 });
 
 /**
-  * Admin Route: POST /api/v1/locations
-  * Create a new State with an optional nested array of Cities/Districts
-  */
+ * Admin Route: POST /api/v1/locations
+ * Create a new State with an optional nested array of Cities/Districts
+ */
 export const createState = asyncHandler(async (req, res) => {
   const { stateName, stateCode, country, cities, isActive } = req.body;
 
@@ -82,9 +304,9 @@ export const createState = asyncHandler(async (req, res) => {
 });
 
 /**
-  * Admin Route: PUT /api/v1/locations/:id
-  * Update State metadata or replace nested cities array
-  */
+ * Admin Route: PUT /api/v1/locations/:id
+ * Update State metadata or replace nested cities array
+ */
 export const updateState = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { stateName, stateCode, country, cities, isActive } = req.body;
@@ -108,9 +330,9 @@ export const updateState = asyncHandler(async (req, res) => {
 });
 
 /**
-  * Admin Route: DELETE /api/v1/locations/:id
-  * Delete a State and its nested cities
-  */
+ * Admin Route: DELETE /api/v1/locations/:id
+ * Delete a State and its nested cities
+ */
 export const deleteState = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const deleted = await Location.findByIdAndDelete(id);
@@ -123,9 +345,9 @@ export const deleteState = asyncHandler(async (req, res) => {
 });
 
 /**
-  * Admin Route: POST /api/v1/locations/:id/cities
-  * Add a new City/District into a State's nested cities array
-  */
+ * Admin Route: POST /api/v1/locations/:id/cities
+ * Add a new City/District into a State's nested cities array
+ */
 export const addCityToState = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { cityName, cityCode, isActive } = req.body;
@@ -158,9 +380,9 @@ export const addCityToState = asyncHandler(async (req, res) => {
 });
 
 /**
-  * Admin Route: DELETE /api/v1/locations/:id/cities/:cityId
-  * Remove a City/District from a State's nested cities array
-  */
+ * Admin Route: DELETE /api/v1/locations/:id/cities/:cityId
+ * Remove a City/District from a State's nested cities array
+ */
 export const deleteCityFromState = asyncHandler(async (req, res) => {
   const { id, cityId } = req.params;
 
@@ -176,51 +398,11 @@ export const deleteCityFromState = asyncHandler(async (req, res) => {
 });
 
 /**
-  * Seed Initial Default States & Cities (Chhattisgarh, Delhi, Maharashtra, etc.)
-  */
+ * Seed Initial Default States & Cities (Chhattisgarh, Delhi, Maharashtra, etc.)
+ */
 export const seedDefaultLocations = asyncHandler(async (req, res) => {
-  const defaultData = [
-    {
-      stateName: 'Chhattisgarh',
-      stateCode: 'CG',
-      country: 'India',
-      cities: [
-        'Raipur', 'Balod', 'Baloda Bazar', 'Balrampur', 'Bastar', 'Bemetara', 'Bijapur',
-        'Bilaspur', 'Dantewada', 'Dhamtari', 'Durg', 'Gariaband', 'Gaurela-Pendra-Marwahi',
-        'Janjgir-Champa', 'Jashpur', 'Kabirdham (Kawardha)', 'Kanker',
-        'Khairagarh-Chhuikhadan-Gandai', 'Kondagaon', 'Korba', 'Koriya', 'Mahasamund',
-        'Manendragarh-Chirmiri-Bharatpur', 'Mohla-Manpur-Ambagarh Chowki', 'Mungeli',
-        'Narayanpur', 'Raigarh', 'Rajnandgaon', 'Sukma', 'Surajpur', 'Surguja', 'Sarangarh-Bilaigarh'
-      ].map(name => ({ cityName: name }))
-    },
-    {
-      stateName: 'Delhi',
-      stateCode: 'DL',
-      country: 'India',
-      cities: ['Central Delhi', 'East Delhi', 'New Delhi', 'North Delhi', 'South Delhi', 'West Delhi'].map(name => ({ cityName: name }))
-    },
-    {
-      stateName: 'Maharashtra',
-      stateCode: 'MH',
-      country: 'India',
-      cities: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane', 'Aurangabad', 'Solapur', 'Amravati'].map(name => ({ cityName: name }))
-    },
-    {
-      stateName: 'Uttar Pradesh',
-      stateCode: 'UP',
-      country: 'India',
-      cities: ['Lucknow', 'Kanpur', 'Varanasi', 'Agra', 'Noida', 'Ghaziabad', 'Prayagraj', 'Gorakhpur'].map(name => ({ cityName: name }))
-    },
-    {
-      stateName: 'Madhya Pradesh',
-      stateCode: 'MP',
-      country: 'India',
-      cities: ['Bhopal', 'Indore', 'Gwalior', 'Jabalpur', 'Ujjain', 'Sagar', 'Satna'].map(name => ({ cityName: name }))
-    }
-  ];
-
   let seededCount = 0;
-  for (const item of defaultData) {
+  for (const item of DEFAULT_LOCATIONS_DATA) {
     const existing = await Location.findOne({ stateName: item.stateName });
     if (!existing) {
       await Location.create(item);
@@ -231,3 +413,4 @@ export const seedDefaultLocations = asyncHandler(async (req, res) => {
   const allLocations = await Location.find().sort({ stateName: 1 });
   return ApiResponse.success(res, `Seeded ${seededCount} new states with nested cities successfully`, allLocations);
 });
+

@@ -5,6 +5,8 @@ import Role from '../models/Role.js';
 import Category from '../models/Category.js';
 import CMS from '../models/CMS.js';
 import Settings from '../models/Settings.js';
+import Location from '../models/Location.js';
+import { DEFAULT_LOCATIONS_DATA } from '../controllers/LocationController.js';
 import { ROLES } from '../constants/roles.js';
 import logger from '../utils/logger.js';
 
@@ -59,7 +61,18 @@ export const seedDatabase = async () => {
       logger.info(`Super Admin user ${superAdminEmail} already exists.`);
     }
 
-    // 3. Seed Default Award Categories in parallel if collection is empty
+    // 3. Seed Default Locations (States & Districts/Cities) if empty
+    const locCount = await Location.countDocuments();
+    if (locCount === 0) {
+      for (const item of DEFAULT_LOCATIONS_DATA) {
+        await Location.create(item);
+      }
+      logger.info(`Initialized ${DEFAULT_LOCATIONS_DATA.length} default states & nested districts.`);
+    } else {
+      logger.info(`Locations dataset already present (${locCount} states).`);
+    }
+
+    // 4. Seed Default Award Categories in parallel if collection is empty
     const catCount = await Category.countDocuments();
     if (catCount === 0) {
       const categoriesJsonPath = new URL('./categories.json', import.meta.url);
@@ -72,7 +85,7 @@ export const seedDatabase = async () => {
       logger.info(`Award Categories already initialized (${catCount} categories present).`);
     }
 
-    // 4. Seed Default CMS Data & Settings in parallel
+    // 5. Seed Default CMS Data & Settings in parallel
     const cmsDefaults = [
       {
         key: 'hero',
@@ -102,6 +115,7 @@ export const seedDatabase = async () => {
     logger.info('CMS default content & Portal settings initialized successfully.');
 
     logger.info('Seeding completed cleanly!');
+
 
     if (process.argv[1] && process.argv[1].includes('seedAdminAndRoles.js')) {
       process.exit(0);

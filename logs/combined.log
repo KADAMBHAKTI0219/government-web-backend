@@ -1883,3 +1883,19 @@
 [2026-09-03 09:55:56:5556] [INFO]: Health Endpoint: http://localhost:5000/api/v1/health
 [2026-09-03 09:55:56:5556] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
 [2026-09-03 09:55:56:5556] [INFO]: ===================================================
+[2026-09-03 10:06:44:644] [INFO]: MongoDB Connected successfully to host: 127.0.0.1 [Database: cg_awards_db]
+[2026-09-03 10:06:44:644] [INFO]: ===============================================
+[2026-09-03 10:06:44:644] [INFO]: Starting Chhattisgarh Awards Database Seeding...
+[2026-09-03 10:06:44:644] [INFO]: ===============================================
+[2026-09-03 10:06:44:644] [INFO]: System Roles seeded successfully.
+[2026-09-03 10:06:44:644] [INFO]: Super Admin user admin@gmail.com already exists.
+[2026-09-03 10:06:44:644] [INFO]: Award Categories already initialized (39 categories present).
+[2026-09-03 10:06:44:644] [INFO]: CMS default content & Portal settings initialized successfully.
+[2026-09-03 10:06:44:644] [INFO]: Seeding completed cleanly!
+[2026-09-03 10:06:44:644] [INFO]: Category RAM Cache pre-warmed successfully (39 active / 39 total categories loaded).
+[2026-09-03 10:06:44:644] [INFO]: ===================================================
+[2026-09-03 10:06:44:644] [INFO]: Server running in development mode on port 5000
+[2026-09-03 10:06:44:644] [INFO]: API Base URL: http://localhost:5000/api/v1
+[2026-09-03 10:06:44:644] [INFO]: Health Endpoint: http://localhost:5000/api/v1/health
+[2026-09-03 10:06:44:644] [INFO]: Swagger Documentation: http://localhost:5000/api/docs
+[2026-09-03 10:06:44:644] [INFO]: ===================================================
