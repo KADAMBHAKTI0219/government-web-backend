@@ -57,11 +57,11 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Indexes for fast query lookup and relational referencing
-userSchema.index({ email: 1 }, { unique: true });
+// Indexes for fast query lookup and relational referencing (email index is created automatically by unique: true)
 userSchema.index({ phone: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ createdAt: -1 });
+
 
 // Hash password before saving in a single fast native pass
 userSchema.pre('save', async function () {

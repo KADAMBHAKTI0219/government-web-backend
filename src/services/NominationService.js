@@ -2,7 +2,7 @@ import Nomination from '../models/Nomination.js';
 import Counter from '../models/Counter.js';
 import ApplicationStatusHistory from '../models/ApplicationStatusHistory.js';
 import ActivityLog from '../models/ActivityLog.js';
-import Category from '../models/Category.js';
+import CategoryResolver from '../utils/categoryResolver.js';
 import { APPLICATION_STATUS, APPLICATION_STAGE } from '../constants/applicationStatuses.js';
 import mongoose from 'mongoose';
 
@@ -22,26 +22,12 @@ async function generateNextApplicationId() {
 }
 
 /**
- * Helper to resolve category ID/slug/title
+ * Helper to resolve category details using RAM cached CategoryResolver
  */
 async function resolveCategoryDetails(catInput) {
-  if (!catInput) return null;
-
-  if (mongoose.Types.ObjectId.isValid(catInput)) {
-    const existing = await Category.findById(catInput);
-    if (existing) return existing;
-  }
-
-  const found = await Category.findOne({
-    $or: [
-      { slug: catInput },
-      { title: catInput },
-      { slug: String(catInput).toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') }
-    ]
-  });
-
-  return found;
+  return await CategoryResolver.resolveDetails(catInput);
 }
+
 
 class NominationService {
   /**

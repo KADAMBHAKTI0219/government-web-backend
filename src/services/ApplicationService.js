@@ -2,36 +2,13 @@ import { v4 as uuidv4 } from 'uuid';
 import mongoose from 'mongoose';
 import ApplicationRepository from '../repositories/ApplicationRepository.js';
 import SettingsRepository from '../repositories/SettingsRepository.js';
-import Category from '../models/Category.js';
+import CategoryResolver from '../utils/categoryResolver.js';
 import { APPLICATION_STATUS } from '../constants/applicationStatuses.js';
 
 async function resolveCategory(catInput) {
-  if (!catInput) return null;
-
-  if (mongoose.Types.ObjectId.isValid(catInput)) {
-    const existing = await Category.findById(catInput);
-    if (existing) return existing._id;
-  }
-
-  const categoryBySlugOrTitle = await Category.findOne({
-    $or: [
-      { slug: catInput },
-      { title: catInput },
-      { slug: catInput.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-') }
-    ]
-  });
-
-  if (categoryBySlugOrTitle) {
-    return categoryBySlugOrTitle._id;
-  }
-
-  const firstCat = await Category.findOne();
-  if (firstCat) {
-    return firstCat._id;
-  }
-
-  return null;
+  return await CategoryResolver.resolveId(catInput);
 }
+
 
 class ApplicationService {
   async createApplication(creatorId, data) {

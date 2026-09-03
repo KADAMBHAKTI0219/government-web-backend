@@ -1,6 +1,7 @@
 import Participant from '../models/Participant.js';
 import Category from '../models/Category.js';
 import CategoryService from '../services/CategoryService.js';
+import CategoryResolver from '../utils/categoryResolver.js';
 import Location from '../models/Location.js';
 import Nomination from '../models/Nomination.js';
 import Counter from '../models/Counter.js';
@@ -26,38 +27,12 @@ async function generateNextApplicationId() {
 }
 
 /**
- * Helper function to resolve category input (ID, slug, or title) using RAM cached categories
+ * Helper function to resolve category input using RAM cached CategoryResolver
  */
 async function resolveCategory(catInput) {
-  const categories = await CategoryService.getAllCategories(false);
-  if (!catInput) {
-    return categories[0] ? categories[0]._id : null;
-  }
-
-  // 1. Check if it's already a valid ObjectId or object
-  const targetId = typeof catInput === 'string' ? catInput : (catInput._id ? String(catInput._id) : null);
-  if (targetId && mongoose.Types.ObjectId.isValid(targetId)) {
-    const existing = categories.find(c => String(c._id) === targetId);
-    if (existing) return existing._id;
-  }
-
-  const strVal = String(typeof catInput === 'string' ? catInput : (catInput.title || catInput.name || catInput.slug || '')).toLowerCase().trim();
-  const slugified = strVal.replace(/[^a-z0-9]+/g, '-');
-
-  // 2. Search in RAM cached list
-  const found = categories.find(c =>
-    c.slug?.toLowerCase() === strVal ||
-    c.slug?.toLowerCase() === slugified ||
-    c.title?.toLowerCase() === strVal
-  );
-
-  if (found) {
-    return found._id;
-  }
-
-  // 3. Fallback to first available category
-  return categories[0] ? categories[0]._id : catInput;
+  return await CategoryResolver.resolveId(catInput);
 }
+
 
 
 /**

@@ -2,8 +2,9 @@ import mongoose from 'mongoose';
 import { APPLICATION_STATUS, APPLICATION_STAGE } from '../constants/applicationStatuses.js';
 
 const categorySubmissionSchema = new mongoose.Schema({
-  categoryId: { type: mongoose.Schema.Types.Mixed, required: true },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category', required: true },
   categoryTitle: { type: String },
+
   description: { type: String, maxlength: 2000, required: true }, // Describe work done in category
   storyLinks: {
     bestStoryLink1: { type: String, required: true }, // Mandatory Best Story Link 1

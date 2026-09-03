@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const categoryItemSchema = new mongoose.Schema({
-  categoryId: { type: mongoose.Schema.Types.Mixed },
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
   categoryTitle: { type: String },
   description: { type: String, maxlength: 2000 },
   bestStoryLink1: { type: String },
@@ -16,6 +16,7 @@ const categoryItemSchema = new mongoose.Schema({
   district: { type: String },
   cityId: { type: mongoose.Schema.Types.Mixed }
 }, { _id: false });
+
 
 const socialPlatformSchema = new mongoose.Schema({
   platform: {
@@ -76,9 +77,10 @@ const participantSchema = new mongoose.Schema(
       cityId: { type: mongoose.Schema.Types.Mixed }
     },
 
-    // Category / Categories (Supports single category mixed or up to 3 category nominations)
-    category: { type: mongoose.Schema.Types.Mixed },
+    // Category / Categories (Supports single category ref or up to 3 category nominations)
+    category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
     categories: [categoryItemSchema],
+
 
     // Story links & Work summary (backward compatible & Excel spec)
     workSummary: { type: String },
