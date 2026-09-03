@@ -1,5 +1,6 @@
 import Participant from '../models/Participant.js';
 import Category from '../models/Category.js';
+import CategoryService from '../services/CategoryService.js';
 import Location from '../models/Location.js';
 import Nomination from '../models/Nomination.js';
 import Counter from '../models/Counter.js';
@@ -25,47 +26,39 @@ async function generateNextApplicationId() {
 }
 
 /**
- * Helper function to resolve category input (ID, slug, or title) to a valid Category ObjectId
+ * Helper function to resolve category input (ID, slug, or title) using RAM cached categories
  */
 async function resolveCategory(catInput) {
+  const categories = await CategoryService.getAllCategories(false);
   if (!catInput) {
-    const firstCat = await Category.findOne();
-    return firstCat ? firstCat._id : null;
+    return categories[0] ? categories[0]._id : null;
   }
 
-  // 1. Check if it's already a valid ObjectId
-  if (typeof catInput === 'string' && mongoose.Types.ObjectId.isValid(catInput)) {
-    const existing = await Category.findById(catInput);
+  // 1. Check if it's already a valid ObjectId or object
+  const targetId = typeof catInput === 'string' ? catInput : (catInput._id ? String(catInput._id) : null);
+  if (targetId && mongoose.Types.ObjectId.isValid(targetId)) {
+    const existing = categories.find(c => String(c._id) === targetId);
     if (existing) return existing._id;
-  } else if (typeof catInput === 'object' && catInput._id && mongoose.Types.ObjectId.isValid(catInput._id)) {
-    return catInput._id;
   }
 
-  const strVal = typeof catInput === 'string' ? catInput : (catInput.title || catInput.name || catInput.slug || String(catInput));
+  const strVal = String(typeof catInput === 'string' ? catInput : (catInput.title || catInput.name || catInput.slug || '')).toLowerCase().trim();
+  const slugified = strVal.replace(/[^a-z0-9]+/g, '-');
 
-  // 2. Search by slug or title (case-insensitive)
-  const escaped = escapeRegex(strVal.trim());
-  const categoryBySlugOrTitle = await Category.findOne({
-    $or: [
-      { slug: strVal },
-      { title: strVal },
-      { slug: strVal.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-') },
-      { title: new RegExp(`^${escaped}$`, 'i') }
-    ]
-  });
+  // 2. Search in RAM cached list
+  const found = categories.find(c =>
+    c.slug?.toLowerCase() === strVal ||
+    c.slug?.toLowerCase() === slugified ||
+    c.title?.toLowerCase() === strVal
+  );
 
-  if (categoryBySlugOrTitle) {
-    return categoryBySlugOrTitle._id;
+  if (found) {
+    return found._id;
   }
 
   // 3. Fallback to first available category
-  const firstCat = await Category.findOne();
-  if (firstCat) {
-    return firstCat._id;
-  }
-
-  return catInput;
+  return categories[0] ? categories[0]._id : catInput;
 }
+
 
 /**
  * Public route: Register / Nominate Participant
@@ -289,51 +282,48 @@ export const registerParticipant = asyncHandler(async (req, res) => {
 
   const participant = await Participant.create(participantData);
 
-  // Dual-write to Nomination collection to guarantee database persistence across all admin modules
-  try {
-    const nextAppId = await generateNextApplicationId();
-    await Nomination.create({
-      applicationId: nextAppId,
-      nominationType: resolvedNominationType,
-      awardType: resolvedAwardType,
-      applicant: {
-        fullName: participantData.fullName || participantData.name,
-        email: participantData.email || 'participant@cgawards.gov.in',
-        phone: participantData.phone || '9999999999',
-        gender: participantData.gender || 'Other',
-        age: participantData.age || '18-40',
-        state: participantData.state || 'Chhattisgarh',
-        district: participantData.district || 'Raipur',
-        nationality: participantData.nationality || 'Indian'
-      },
-      nominator: nominatorData,
-      nominee: nomineeData,
-      categories: normalizedCategories.map(c => ({
-        categoryId: c.categoryId || resolvedCatId || 'General',
-        categoryTitle: c.categoryTitle || 'General',
-        description: c.description || workSummary || 'Nomination submission',
-        storyLinks: {
-          bestStoryLink1: c.bestStoryLink1 || contentUrl || 'https://youtube.com',
-          bestStoryLink2: c.bestStoryLink2 || '',
-          bestStoryLink3: c.bestStoryLink3 || ''
+  // Dual-write to Nomination collection asynchronously (non-blocking)
+  generateNextApplicationId()
+    .then(nextAppId => {
+      return Nomination.create({
+        applicationId: nextAppId,
+        nominationType: resolvedNominationType,
+        awardType: resolvedAwardType,
+        applicant: {
+          fullName: participantData.fullName || participantData.name,
+          email: participantData.email || 'participant@cgawards.gov.in',
+          phone: participantData.phone || '9999999999',
+          gender: participantData.gender || 'Other',
+          age: participantData.age || '18-40',
+          state: participantData.state || 'Chhattisgarh',
+          district: participantData.district || 'Raipur',
+          nationality: participantData.nationality || 'Indian'
         },
-        videoLink: c.videoLink || resolvedVideoLink || '',
-        mainVideoLink: c.mainVideoLink || resolvedVideoLink || '',
-        status: 'SUBMITTED'
-      })),
-      socialProfiles: participantData.socialProfiles,
-      status: 'SUBMITTED',
-      submittedAt: new Date()
-    });
-  } catch (syncErr) {
-    logger.warn(`Nomination dual-write sync warning: ${syncErr.message}`);
-  }
+        nominator: nominatorData,
+        nominee: nomineeData,
+        categories: normalizedCategories.map(c => ({
+          categoryId: c.categoryId || resolvedCatId || 'General',
+          categoryTitle: c.categoryTitle || 'General',
+          description: c.description || workSummary || 'Nomination submission',
+          storyLinks: {
+            bestStoryLink1: c.bestStoryLink1 || contentUrl || 'https://youtube.com',
+            bestStoryLink2: c.bestStoryLink2 || '',
+            bestStoryLink3: c.bestStoryLink3 || ''
+          },
+          videoLink: c.videoLink || resolvedVideoLink || '',
+          mainVideoLink: c.mainVideoLink || resolvedVideoLink || '',
+          status: 'SUBMITTED'
+        })),
+        socialProfiles: participantData.socialProfiles,
+        status: 'SUBMITTED',
+        submittedAt: new Date()
+      });
+    })
+    .catch(syncErr => logger.warn(`Nomination dual-write sync warning: ${syncErr.message}`));
 
-  // Fetch category details to populate response
-  let categoryObj = null;
-  if (mongoose.Types.ObjectId.isValid(participant.category)) {
-    categoryObj = await Category.findById(participant.category).select('_id title slug icon');
-  }
+  // Fetch category details from RAM cache to populate response without DB query
+  const allCategories = await CategoryService.getAllCategories(false);
+  const categoryObj = allCategories.find(c => String(c._id) === String(participant.category)) || null;
 
   const categoryIdString = categoryObj ? categoryObj._id.toString() : participant.category?.toString();
   const categoryTitleString = categoryObj ? categoryObj.title : (typeof participant.category === 'string' ? participant.category : 'General');
@@ -353,6 +343,7 @@ export const registerParticipant = asyncHandler(async (req, res) => {
     participant: responseData
   });
 });
+
 
 /**
  * Helper function to populate full participant details (including category, nested categories, state and city details)

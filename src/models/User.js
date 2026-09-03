@@ -57,11 +57,16 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password before saving
+// Indexes for fast query lookup and relational referencing
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ phone: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ createdAt: -1 });
+
+// Hash password before saving in a single fast native pass
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
 // Method to compare entered password with hashed password
@@ -71,3 +76,4 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 
 const User = mongoose.model('User', userSchema);
 export default User;
+

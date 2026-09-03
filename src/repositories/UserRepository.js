@@ -13,9 +13,13 @@ class UserRepository {
 
   async findByEmail(email, selectPassword = false) {
     const query = User.findOne({ email: email.toLowerCase() });
-    if (selectPassword) query.select('+password');
-    return await query.exec();
+    if (selectPassword) {
+      query.select('+password');
+      return await query.exec();
+    }
+    return await query.lean().exec();
   }
+
 
   async updateById(id, updateData) {
     return await User.findByIdAndUpdate(id, updateData, { returnDocument: 'after', runValidators: true });

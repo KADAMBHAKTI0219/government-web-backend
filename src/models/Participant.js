@@ -114,6 +114,13 @@ const participantSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+participantSchema.index({ email: 1 });
+participantSchema.index({ phone: 1 });
+participantSchema.index({ status: 1, createdAt: -1 });
+participantSchema.index({ category: 1 });
+
 const Participant = mongoose.model('Participant', participantSchema);
 export default Participant;
+
+
 

@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import mongoose from 'mongoose';
 import UserRepository from '../repositories/UserRepository.js';
 import Participant from '../models/Participant.js';
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '../utils/token.js';
@@ -18,46 +19,48 @@ class AuthService {
     const resolvedDistrict = userData.district || 'Raipur';
     const resolvedVideoLink = userData.instagramLink || userData.videoLink || userData.instagramReelUrl || userData.reelUrl || userData.videoUrl || userData.mainVideoLink || '';
 
+    // Generate user _id and tokens upfront to persist in 1 single database write operation
+    const userId = new mongoose.Types.ObjectId();
+    const role = userData.role || 'CREATOR';
+    const accessToken = generateAccessToken({ id: userId, role });
+    const refreshToken = generateRefreshToken({ id: userId });
+
     const user = await UserRepository.create({
+      _id: userId,
       ...userData,
       name: resolvedName,
       fullName: resolvedName,
       email,
       phone: resolvedPhone,
       district: resolvedDistrict,
-      role: userData.role || 'CREATOR',
+      role,
       instagramLink: userData.instagramLink || resolvedVideoLink,
       videoLink: userData.videoLink || resolvedVideoLink,
       instagramReelUrl: userData.instagramReelUrl || resolvedVideoLink,
       isEmailVerified: true,
-      isProfileComplete: true
+      isProfileComplete: true,
+      refreshToken
     });
 
-    // Dual-write to Participant collection
-    try {
-      await Participant.create({
-        name: resolvedName,
-        fullName: resolvedName,
-        email,
-        phone: resolvedPhone,
-        district: resolvedDistrict,
-        state: userData.state || 'Chhattisgarh',
-        status: 'PENDING'
-      });
-    } catch (e) {
+    // Non-blocking async dual-write to Participant collection
+    Participant.create({
+      name: resolvedName,
+      fullName: resolvedName,
+      email,
+      phone: resolvedPhone,
+      district: resolvedDistrict,
+      state: userData.state || 'Chhattisgarh',
+      status: 'PENDING'
+    }).catch((e) => {
       logger.warn(`Participant dual-write warning: ${e.message}`);
-    }
+    });
 
-    const accessToken = generateAccessToken({ id: user._id, role: user.role });
-    const refreshToken = generateRefreshToken({ id: user._id });
-
-    await UserRepository.updateRefreshToken(user._id, refreshToken);
-
-    const userResponse = user.toObject();
+    const userResponse = user.toObject ? user.toObject() : { ...user };
     delete userResponse.password;
 
     return { user: userResponse, accessToken, refreshToken };
   }
+
 
   async login(email, password) {
     const user = await UserRepository.findByEmail(email, true);
