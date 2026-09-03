@@ -21,9 +21,11 @@ import captchaRoutes from './captchaRoutes.js';
 import participantRoutes from './participantRoutes.js';
 import locationRoutes from './locationRoutes.js';
 import winnerRoutes from './winnerRoutes.js';
+import healthRoutes from './healthRoutes.js';
 
 const router = express.Router();
 
+router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/creators', creatorRoutes);

@@ -12,16 +12,16 @@ export const getCategories = asyncHandler(async (req, res) => {
   const minimal = req.query.minimal === 'true';
   const select = minimal ? 'categoryNumber title slug icon tier tierNumber prizeTier isActive order cashPrizeMin cashPrizeMax' : null;
 
-  // Set HTTP Cache Control headers for frontend performance
-  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+  // Set HTTP Cache Control headers for ultra-fast frontend performance
+  res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
 
   const categories = await CategoryService.getAllCategories(includeInactive, select);
   return ApiResponse.success(res, 'Categories fetched successfully', categories, 200);
 });
 
 export const getCategoryBySlug = asyncHandler(async (req, res) => {
-  // Set HTTP Cache Control headers for frontend performance
-  res.set('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
+  // Set HTTP Cache Control headers for ultra-fast frontend performance
+  res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
 
   const category = await CategoryService.getCategoryBySlug(req.params.slug);
   return ApiResponse.success(res, 'Category details fetched', category, 200);

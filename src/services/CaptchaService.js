@@ -145,7 +145,7 @@ class CaptchaService {
       const data = response.data;
       if (!data || !data.success) {
         logger.warn(`reCAPTCHA verification failed. Google response: ${JSON.stringify(data ? data['error-codes'] : [])}`);
-        
+
         // Auto fallback in non-production mode
         if (process.env.NODE_ENV !== 'production') {
           return {
@@ -169,7 +169,7 @@ class CaptchaService {
       };
     } catch (error) {
       logger.error(`reCAPTCHA Google API error: ${error.message}`);
-      
+
       if (process.env.NODE_ENV !== 'production') {
         return {
           success: true,

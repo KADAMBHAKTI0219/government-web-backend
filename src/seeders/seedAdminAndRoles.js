@@ -20,7 +20,7 @@ export const seedDatabase = async () => {
     logger.info('Starting Chhattisgarh Awards Database Seeding...');
     logger.info('===============================================');
 
-    // 1. Seed Roles
+    // 1. Seed Roles in parallel
     const rolesList = [
       { name: ROLES.SUPER_ADMIN, description: 'Full System Control & Admin Management', isSystemRole: true },
       { name: ROLES.ADMIN, description: 'Manage Applications, Categories & Jury', isSystemRole: true },
@@ -30,9 +30,11 @@ export const seedDatabase = async () => {
       { name: ROLES.PUBLIC_USER, description: 'Public visitor & voter', isSystemRole: true }
     ];
 
-    for (const roleData of rolesList) {
-      await Role.findOneAndUpdate({ name: roleData.name }, roleData, { upsert: true, returnDocument: 'after' });
-    }
+    await Promise.all(
+      rolesList.map(roleData =>
+        Role.findOneAndUpdate({ name: roleData.name }, roleData, { upsert: true, returnDocument: 'after' })
+      )
+    );
     logger.info('System Roles seeded successfully.');
 
     // 2. Seed Super Admin Account
@@ -57,22 +59,20 @@ export const seedDatabase = async () => {
       logger.info(`Super Admin user ${superAdminEmail} already exists.`);
     }
 
-    // 3. Seed Default Award Categories (only if collection is empty or upsert missing)
+    // 3. Seed Default Award Categories in parallel if collection is empty
     const catCount = await Category.countDocuments();
     if (catCount === 0) {
       const categoriesJsonPath = new URL('./categories.json', import.meta.url);
       const sampleCategories = JSON.parse(fs.readFileSync(categoriesJsonPath, 'utf-8'));
-      for (const cat of sampleCategories) {
-        await Category.findOneAndUpdate({ slug: cat.slug }, cat, { upsert: true });
-      }
+      await Promise.all(
+        sampleCategories.map(cat => Category.findOneAndUpdate({ slug: cat.slug }, cat, { upsert: true }))
+      );
       logger.info(`${sampleCategories.length} Award Categories initialized successfully.`);
     } else {
       logger.info(`Award Categories already initialized (${catCount} categories present).`);
     }
 
-
-
-    // 4. Seed Default CMS Data
+    // 4. Seed Default CMS Data & Settings in parallel
     const cmsDefaults = [
       {
         key: 'hero',
@@ -93,14 +93,13 @@ export const seedDatabase = async () => {
       }
     ];
 
-    for (const cmsItem of cmsDefaults) {
-      await CMS.findOneAndUpdate({ key: cmsItem.key }, cmsItem, { upsert: true, returnDocument: 'after' });
-    }
-    logger.info('CMS default content seeded successfully.');
-
-    // 5. Seed Default Settings
-    await Settings.findOneAndUpdate({}, { isVotingEnabled: true, isRegistrationOpen: true, isNominationOpen: true }, { upsert: true, returnDocument: 'after' });
-    logger.info('Portal settings initialized successfully.');
+    await Promise.all([
+      ...cmsDefaults.map(cmsItem =>
+        CMS.findOneAndUpdate({ key: cmsItem.key }, cmsItem, { upsert: true, returnDocument: 'after' })
+      ),
+      Settings.findOneAndUpdate({}, { isVotingEnabled: true, isRegistrationOpen: true, isNominationOpen: true }, { upsert: true, returnDocument: 'after' })
+    ]);
+    logger.info('CMS default content & Portal settings initialized successfully.');
 
     logger.info('Seeding completed cleanly!');
 

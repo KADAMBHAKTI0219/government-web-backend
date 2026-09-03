@@ -10,6 +10,7 @@ import morganMiddleware from './middleware/logger.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { notFoundHandler, globalErrorHandler } from './middleware/errorHandler.js';
 import apiRouter from './routes/index.js';
+import healthRoutes from './routes/healthRoutes.js';
 import { serveSwagger, setupSwagger } from './docs/swagger.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -38,6 +39,10 @@ app.use(cookieParser(process.env.COOKIE_SECRET || 'cg_awards_cookie_secret'));
 app.use(morganMiddleware);
 app.use('/api', globalLimiter);
 
+// Health Check Direct Mounts
+app.use('/health', healthRoutes);
+app.use('/api/health', healthRoutes);
+
 // Static Uploads Directory
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
@@ -51,6 +56,7 @@ app.get('/', (req, res) => {
     service: 'Chhattisgarh State Creator & Influencer Awards Portal API',
     version: '1.0.0',
     documentation: '/api/docs',
+    health: '/health',
     timestamp: new Date().toISOString()
   });
 });
